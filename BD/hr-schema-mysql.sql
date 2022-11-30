@@ -2656,3 +2656,43 @@ JOIN departments d
 ON e.department_id = d.department_id
 WHERE d.department_name = 'Finance'
 ORDER BY e.first_name;
+
+SELECT c.country_name AS 'Pais',
+r.region_name AS 'Region'
+FROM countries c
+JOIN regions r
+ON c.region_id = r.region_id
+ORDER BY r.region_name ASC, c.country_name DESC; 
+
+SELECT l.city AS 'Ciudad', r.region_name AS 'Region'
+FROM locations l
+JOIN countries c
+ON l.country_id = c.country_id
+JOIN regions r
+ON r.region_id = c.region_id
+ORDER BY l.city;
+
+SELECT empleado.first_name AS 'Empleado',
+responsable.first_name AS 'Responsable'
+FROM employees empleado
+JOIN employees responsable
+ON empleado.manager_id = responsable.employee_id
+ORDER BY empleado.first_name,
+responsable.first_name;
+
+SELECT empleado.first_name AS 'Empleado',
+responsable.first_name AS 'Responsable'
+FROM employees responsable
+JOIN employees empleado
+ON empleado.manager_id = responsable.employee_id
+ORDER BY empleado.first_name,
+responsable.first_name;
+
+SELECT empleado.first_name AS 'Empleado',
+responsable.first_name AS 'Responsable'
+FROM employees responsable
+JOIN employees empleado
+ON empleado.manager_id = responsable.employee_id
+WHERE empleado.last_name = 'King'
+ORDER BY empleado.first_name,
+responsable.first_name;
