@@ -2629,3 +2629,30 @@ ALTER TABLE departments ADD FOREIGN KEY (manager_id) REFERENCES employees (emplo
 ALTER TABLE job_history ADD FOREIGN KEY (employee_id) REFERENCES employees(employee_id);
 ALTER TABLE job_history ADD FOREIGN KEY (job_id) REFERENCES jobs(job_id);
 ALTER TABLE job_history ADD FOREIGN KEY (department_id) REFERENCES departments(department_id);
+
+
+
+/*Sacamos la tabla locations con alias y ordenada por provincia*/
+SELECT location_id as 'Clave', street_address as 'Direccion', postal_code as 'Codigo Postal',
+city as 'Ciudad', state_province as 'Provincia', country_id as 'Pais' from locations order by city;
+
+SELECT location_id as 'Clave', street_address as 'Direccion', postal_code as 'Codigo Postal',
+city as 'Ciudad', state_province as 'Provincia', country_id as 'Pais' from locations WHERE country_id = 'MX';
+
+SELECT * FROM locations l WHERE country_id = 'MX';
+SELECT l.* FROM locations l WHERE l.country_id = 'MX';
+
+SELECT e.first_name AS 'Nombre', 
+		d.department_name AS 'Departamento' 
+FROM employees e 
+JOIN departments d
+ON e.department_id = d.department_id
+;
+
+SELECT e.first_name AS 'Nombre',
+d.department_name AS 'Departamento'
+FROM employees e
+JOIN departments d
+ON e.department_id = d.department_id
+WHERE d.department_name = 'Finance'
+ORDER BY e.first_name;

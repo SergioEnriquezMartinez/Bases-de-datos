@@ -180,4 +180,3 @@ AND REFERENCED_TABLE_NAME = 'personas'
 
 ALTER TABLE personas DROP CONSTRAINT personas_(la que te diga la consulta anterior);
 ALTER TABLE personas DROP COLUMN codVoto;
-
