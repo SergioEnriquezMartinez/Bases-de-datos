@@ -2696,3 +2696,47 @@ ON empleado.manager_id = responsable.employee_id
 WHERE empleado.last_name = 'King'
 ORDER BY empleado.first_name,
 responsable.first_name;
+
+/**/
+SELECT e.first_name AS 'Nombre',
+e.last_name AS 'Apellido',
+j.job_title AS 'Puesto de trabajo'
+FROM employees e
+JOIN job_history jh
+ON e.employee_id = jh.employee_id
+JOIN jobs j
+ON j.job_id = jh.job_id
+ORDER BY 1, 2, 3;
+
+SELECT e.first_name AS 'Nombre',
+e.last_name AS 'Apellido'
+FROM employees e
+JOIN job_history jh
+ON e.employee_id = jh.employee_id
+ORDER BY 2;
+
+SELECT DISTINCT e.first_name AS 'Nombre',
+e.last_name AS 'Apellido'
+FROM employees e
+JOIN job_history jh
+ON e.employee_id = jh.employee_id
+ORDER BY 2;
+
+SELECT e.first_name AS 'Nombre',
+e.last_name AS 'Apellido',
+j.job_title AS 'Puesto de trabajo',
+d.department_name AS 'Departamento'
+FROM employees e
+JOIN job_history jh
+ON e.employee_id = jh.employee_id
+JOIN jobs j
+ON j.job_id = jh.job_id
+JOIN departments d
+ON d.department_id = jh.department_id;
+
+SELECT e.first_name AS 'Nombre',
+e.last_name AS 'Apellido',
+d.department_name AS 'Departamento'
+FROM employees e
+JOIN departments d
+ON e.department_id = d.department_id;
