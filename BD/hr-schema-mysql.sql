@@ -2740,3 +2740,47 @@ d.department_name AS 'Departamento'
 FROM employees e
 JOIN departments d
 ON e.department_id = d.department_id;
+
+SELECT e.first_name AS 'Nombre',
+e.last_name AS 'Apellido',
+d.department_name AS 'Departamento'
+FROM employees e
+JOIN departments d
+ON e.department_id = d.department_id
+WHERE department_name = 'Administration'
+ORDER BY e.last_name;
+
+SELECT e.first_name AS 'Nombre',
+e.last_name AS 'Apellidos'
+FROM employees e
+WHERE e.department_id IS NULL;
+
+/*
+INNER JOIN: es el normal y funciona de la misma forma que el JOIN normal
+NATURAL JOIN: te ahorras el ON si el nombre de las dos columnas a relacionar (FK y PK) se llaman igual
+LEFT y RIGTH JOIN: para cuando una de las columnas de las tablas que relacionamos tiene algun valor nulo (LEFT para el null en la izquierda de la relación y RIGTH para el null en la parte derecha)
+*/
+
+SELECT e.first_name AS 'Nombre',
+e.last_name AS 'Apellidos',
+j.job_id AS 'Trabajo'
+FROM employees e
+LEFT JOIN job_history j
+ON e.job_id = j.job_id
+ORDER BY 3, 2;
+
+SELECT d.department_name AS 'Dept.',
+e.first_name AS 'Nombre',
+e.last_name AS 'Apellido'
+FROM departments d
+INNER JOIN employees e
+ON d.department_id = e.department_id
+ORDER BY 1, 3;
+
+SELECT d.department_name AS 'Dept.',
+e.first_name AS 'Nombre',
+e.last_name AS 'Apellido'
+FROM departments d
+LEFT JOIN employees e
+ON d.department_id = e.department_id
+ORDER BY 1, 3;
