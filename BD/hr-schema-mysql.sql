@@ -2784,3 +2784,20 @@ FROM departments d
 LEFT JOIN employees e
 ON d.department_id = e.department_id
 ORDER BY 1, 3;
+
+SELECT e.first_name AS 'Nombre',
+e.last_name AS 'Apellido',
+d.department_name AS 'Dept.'
+FROM employees e
+LEFT JOIN departments d
+ON e.department_id = d.department_id
+ORDER BY 1, 2, 3;
+
+SELECT e.first_name AS 'Nombre',
+e.last_name AS 'Apellido',
+d.department_name AS 'Dept.'
+FROM departments d
+LEFT JOIN employees e
+ON e.department_id = d.department_id
+ORDER BY 3, 1, 2;
+
