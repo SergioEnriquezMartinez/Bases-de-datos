@@ -2838,3 +2838,14 @@ ON e.employee_id = jh.employee_id
 LEFT JOIN jobs j
 ON j.job_id = jh.job_id
 ORDER BY 3, 2;
+
+SELECT d.department_name AS 'Dept',
+r.region_name AS 'Region'
+FROM departments d
+LEFT JOIN locations l
+ON d.location_id = l.location_id
+LEFT JOIN countries c
+ON c.country_id = l.country_id
+LEFT JOIN regions r
+ON r.region_id = c.region_id
+ORDER BY 1;
