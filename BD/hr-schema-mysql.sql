@@ -2801,3 +2801,40 @@ LEFT JOIN employees e
 ON e.department_id = d.department_id
 ORDER BY 3, 1, 2;
 
+SELECT e.first_name AS 'Nombre',
+e.last_name AS 'Apellido',
+d.department_name AS 'Dept.'
+FROM employees e
+LEFT JOIN departments d
+ON e.department_id = d.department_id;
+
+SELECT e.first_name AS 'Nombre',
+e.last_name AS 'Apellido',
+d.department_name AS 'Dept.'
+FROM departments d
+RIGHT JOIN employees e
+ON d.department_id = e.department_id;
+
+SELECT e.first_name AS 'Nombre',
+e.last_name AS 'Apellidos',
+j.job_title AS 'Trabajo'
+FROM employees e
+LEFT JOIN jobs j
+ON j.job_id = e.job_id;
+
+SELECT e.first_name AS 'Nombre',
+e.last_name AS 'Apellidos',
+j.job_title AS 'Trabajo'
+FROM employees e
+RIGHT JOIN jobs j
+ON e.job_id = j.job_id;
+
+SELECT e.first_name AS 'Nombre',
+e.last_name AS 'Apellidos',
+j.job_title AS 'Historial trabajos'
+FROM employees e
+LEFT JOIN job_history jh
+ON e.employee_id = jh.employee_id
+LEFT JOIN jobs j
+ON j.job_id = jh.job_id
+ORDER BY 3, 2;
