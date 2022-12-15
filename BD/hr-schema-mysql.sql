@@ -2849,3 +2849,50 @@ ON c.country_id = l.country_id
 LEFT JOIN regions r
 ON r.region_id = c.region_id
 ORDER BY 1;
+
+SELECT e.first_name,
+e.last_name,
+d.department_name
+FROM employees e
+JOIN departments d
+ON e.department_id = d.department_id
+WHERE d.department_name = 'Shipping'
+OR d.department_name = 'Marketing'
+ORDER BY 3, 2, 1;
+
+SELECT e.first_name,
+e.last_name,
+d.department_name,
+e.salary
+FROM employees e
+JOIN departments d
+ON e.department_id = d.department_id
+WHERE (d.department_name = 'Shipping'
+OR d.department_name = 'Marketing')
+AND (e.salary > 6000.00
+AND e.salary < 7000)
+ORDER BY 3, 2, 1;
+
+
+SELECT e.first_name,
+e.last_name,
+d.department_name,
+e.salary
+FROM employees e
+JOIN departments d
+ON e.department_id = d.department_id
+WHERE d.department_name IN ('Shipping', 'Marketing')
+AND (e.salary > 6000.00
+AND e.salary < 7000)
+ORDER BY 3, 2, 1;
+
+SELECT e.first_name,
+e.last_name,
+d.department_name,
+e.salary
+FROM employees e
+JOIN departments d
+ON e.department_id = d.department_id
+WHERE d.department_name IN ('Sales', 'Marketing', 'IT')
+AND (e.salary > 7000.00)
+ORDER BY 3, 2, 1;
