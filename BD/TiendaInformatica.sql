@@ -39,6 +39,7 @@ DESC articulos;
 | precio        | int(11)     | YES  |     | NULL    |       |
 | codFabricante | int(11)     | YES  | MUL | NULL    |       |
 +---------------+-------------+------+-----+---------+-------+
+
 --7 Introducir datos en la tabla
 --TABLA FABRICANTES
 INSERT INTO fabricantes (idFabricante, nombre)
@@ -312,83 +313,83 @@ ORDER BY nombre ASC;
 
 --q) Obtener un listado completo de los productos, incluyendo por cada articulo los 
 --datos del articulo y del fabricante
-SELECT a.idArticulo, a.nombre, a.precio, a.codFabricante, f.nombre AS 'Nombre fabricante' 
+SELECT a.nombre AS 'Nombre artículo', a.precio, f.nombre AS 'Nombre fabricante' 
 FROM articulos a
-JOIN fabricantes f
+LEFT JOIN fabricantes f
 ON f.idFabricante = a.codFabricante
 ORDER BY a.idArticulo;
 
-+------------+----------------------------+--------+---------------+-------------------+
-| idArticulo | nombre                     | precio | codFabricante | Nombre fabricante |
-+------------+----------------------------+--------+---------------+-------------------+
-|          1 | Teclado                    |    100 |             3 | Logitech          |
-|          2 | Disco duro 300 Gb          |    500 |             5 | Seagate           |
-|          3 | Mouse                      |     80 |             3 | Logitech          |
-|          4 | Memoria USB                |    140 |             4 | Lexar             |
-|          5 | Memoria RAM                |    290 |             1 | Kingston          |
-|          6 | Disco duro extraible 250Gb |    650 |             5 | Seagate           |
-|          7 | Memoria USB                |    279 |             1 | Kingston          |
-|          8 | DVD Rom                    |    450 |             2 | Adata             |
-|          9 | CD Rom                     |    200 |             2 | Adata             |
-|         10 | Tarjeta de red             |    180 |             3 | Logitech          |
-+------------+----------------------------+--------+---------------+-------------------+
++----------------------------+--------+-------------------+
+| Nombre art?culo            | precio | Nombre fabricante |
++----------------------------+--------+-------------------+
+| Teclado                    |    100 | Logitech          |
+| Disco duro 300GB           |    500 | Seagate           |
+| Mouse                      |     80 | Logitech          |
+| Memoria USB                |    140 | Lexar             |
+| Memoria RAM                |    290 | Kingston          |
+| Disco duro extraible 250GB |    650 | Seagate           |
+| Memoria USB                |    279 | Kingston          |
+| DVD Rom                    |    450 | Adata             |
+| CD ROM                     |    200 | Adata             |
+| Tarjeta de red             |    180 | Logitech          |
++----------------------------+--------+-------------------+
 
 --r) Obtener la clave de producto, nombre del producto y nombre del fabricante de 
 --todos los productos en venta
-SELECT a.idArticulo, a.nombre, f.nombre AS 'Nombre fabricante'
+SELECT a.idArticulo, a.nombre AS 'Nombre artículo', f.nombre AS 'Nombre fabricante'
 FROM articulos a 
 JOIN fabricantes f
 ON f.idFabricante = a.codFabricante;
 
 +------------+----------------------------+-------------------+
-| idArticulo | nombre                     | Nombre fabricante |
+| idArticulo | Nombre art?culo            | Nombre fabricante |
 +------------+----------------------------+-------------------+
 |          5 | Memoria RAM                | Kingston          |
 |          7 | Memoria USB                | Kingston          |
 |          8 | DVD Rom                    | Adata             |
-|          9 | CD Rom                     | Adata             |
+|          9 | CD ROM                     | Adata             |
 |          1 | Teclado                    | Logitech          |
 |          3 | Mouse                      | Logitech          |
 |         10 | Tarjeta de red             | Logitech          |
 |          4 | Memoria USB                | Lexar             |
-|          2 | Disco duro 300 Gb          | Seagate           |
-|          6 | Disco duro extraible 250Gb | Seagate           |
+|          2 | Disco duro 300GB           | Seagate           |
+|          6 | Disco duro extraible 250GB | Seagate           |
 +------------+----------------------------+-------------------+
 
 --s) Obtener el nombre y precio de los artículos donde el fabricante sea Logitech 
 --ordenarlos alfabéticamente por nombre del producto
-SELECT a.nombre, a.precio, f.nombre AS 'Nombre fabricante' 
+SELECT a.nombre AS 'Nombre artículo', a.precio, f.nombre AS 'Nombre fabricante' 
 FROM articulos a
 JOIN fabricantes f
 ON f.idFabricante = a.codFabricante
 WHERE f.nombre = 'Logitech'
 ORDER BY a.nombre;
 
-+----------------+--------+-------------------+
-| nombre         | precio | Nombre fabricante |
-+----------------+--------+-------------------+
-| Mouse          |     80 | Logitech          |
-| Tarjeta de red |    180 | Logitech          |
-| Teclado        |    100 | Logitech          |
-+----------------+--------+-------------------+
++-----------------+--------+-------------------+
+| Nombre art?culo | precio | Nombre fabricante |
++-----------------+--------+-------------------+
+| Mouse           |     80 | Logitech          |
+| Tarjeta de red  |    180 | Logitech          |
+| Teclado         |    100 | Logitech          |
++-----------------+--------+-------------------+
 
 --t) Obtener el nombre, precio y nombre de fabricante de los productos que son marca 
 --Lexar o Kingston ordenados descendentemente por precio
-SELECT a.nombre, a.precio, f.nombre AS 'Nombre fabricante' 
+SELECT a.nombre AS 'Nombre artículo', a.precio, f.nombre AS 'Nombre fabricante' 
 FROM articulos a
 JOIN fabricantes f
 ON f.idFabricante = a.codFabricante
 WHERE f.nombre
-ON ('Lexar', 'Kingston')
+IN ('Lexar', 'Kingston')
 ORDER BY a.precio DESC;
 
-+-------------+--------+-------------------+
-| nombre      | precio | Nombre fabricante |
-+-------------+--------+-------------------+
-| Memoria RAM |    290 | Kingston          |
-| Memoria USB |    279 | Kingston          |
-| Memoria USB |    140 | Lexar             |
-+-------------+--------+-------------------+
++-----------------+--------+-------------------+
+| Nombre art?culo | precio | Nombre fabricante |
++-----------------+--------+-------------------+
+| Memoria RAM     |    290 | Kingston          |
+| Memoria USB     |    279 | Kingston          |
+| Memoria USB     |    140 | Lexar             |
++-----------------+--------+-------------------+
 
 --u) Añade un nuevo producto: Clave del producto 11, Altavoces de $ 120 del 
 --fabricante 2
@@ -469,4 +470,17 @@ WHERE precio >= 300;
 --y) Borra el producto numero 6 
 DELETE FROM articulos WHERE idArticulo = 6;
 
-
++------------+------------------+--------+---------------+
+| idarticulo | nombre           | precio | codfabricante |
++------------+------------------+--------+---------------+
+|          1 | Teclado          |    100 |             3 |
+|          2 | Disco duro 300GB |    500 |             5 |
+|          3 | Mouse            |     80 |             3 |
+|          4 | Memoria USB      |    140 |             4 |
+|          5 | Memoria RAM      |    290 |             1 |
+|          7 | Memoria USB      |    279 |             1 |
+|          8 | DVD Rom          |    450 |             2 |
+|          9 | CD ROM           |    200 |             2 |
+|         10 | Tarjeta de red   |    180 |             3 |
+|         11 | Altavoces        |    120 |             2 |
++------------+------------------+--------+---------------+
