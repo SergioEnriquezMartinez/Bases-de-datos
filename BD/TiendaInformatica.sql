@@ -434,38 +434,47 @@ WHERE idArticulo = 6;
 +------------+-------------------+--------+---------------+
 
 --w) Aplicar un descuento del 10% a todos los productos. 
-SELECT precio * 0.9 AS 'Precio con un 10%'
-FROM articulos;
+UPDATE articulos
+SET precio = precio * 0.9;
 
-+-------------------+
-| Precio con un 10% |
-+-------------------+
-|              90.0 |
-|             450.0 |
-|              72.0 |
-|             126.0 |
-|             261.0 |
-|             585.0 |
-|             251.1 |
-|             405.0 |
-|             180.0 |
-|             162.0 |
-+-------------------+
++------------+-------------------+--------+---------------+
+| idarticulo | nombre            | precio | codfabricante |
++------------+-------------------+--------+---------------+
+|          1 | Teclado           |     90 |             3 |
+|          2 | Disco duro 300GB  |    450 |             5 |
+|          3 | Mouse             |     72 |             3 |
+|          4 | Memoria USB       |    126 |             4 |
+|          5 | Memoria RAM       |    261 |             1 |
+|          6 | Impresora Laser   |    593 |             5 |
+|          7 | Memoria USB       |    251 |             1 |
+|          8 | DVD Rom           |    405 |             2 |
+|          9 | CD ROM            |    180 |             2 |
+|         10 | Tarjeta de red    |    162 |             3 |
+|         11 | Altavoces         |    108 |             2 |
++------------+------------------+--------+---------------+
 
 --x) Aplicar un descuento de $ 10 a todos los productos cuyo precio sea mayor o 
 --igual a $ 300
 
-SELECT precio * 0.9 AS 'Descuento 10% para precios superiores a 300'
-FROM articulos
+UPDATE articulos
+SET precio = precio - 10
 WHERE precio >= 300;
 
-+---------------------------------------------+
-| Descuento 10% para precios superiores a 300 |
-+---------------------------------------------+
-|                                       450.0 |
-|                                       585.0 |
-|                                       405.0 |
-+---------------------------------------------+
++------------+-------------------+--------+---------------+
+| idarticulo | nombre            | precio | codfabricante |
++------------+-------------------+--------+---------------+
+|          1 | Teclado           |     90 |             3 |
+|          2 | Disco duro 300GB  |    440 |             5 |
+|          3 | Mouse             |     72 |             3 |
+|          4 | Memoria USB       |    126 |             4 |
+|          5 | Memoria RAM       |    261 |             1 |
+|          6 | Impresora Laser   |    640 |             5 |
+|          7 | Memoria USB       |    251 |             1 |
+|          8 | DVD Rom           |    395 |             2 |
+|          9 | CD ROM            |    180 |             2 |
+|         10 | Tarjeta de red    |    162 |             3 |
+|         11 | Altavoces         |    108 |             2 |
++------------+------------------+--------+---------------+
 
 --y) Borra el producto numero 6 
 DELETE FROM articulos WHERE idArticulo = 6;
