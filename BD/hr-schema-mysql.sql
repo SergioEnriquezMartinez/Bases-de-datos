@@ -2896,3 +2896,34 @@ ON e.department_id = d.department_id
 WHERE d.department_name IN ('Sales', 'Marketing', 'IT')
 AND (e.salary > 7000.00)
 ORDER BY 3, 2, 1;
+
+SELECT first_name AS Nombre, last_name Apellido
+FROM employees
+WHERE salary IN (8000, 9000)
+ORDER BY apellido DESC;
+
+SELECT *
+FROM employees
+WHERE department_id IS null;
+
+SELECT e.first_name AS nombre,
+e.last_name apellido,
+j.job_title trabajo,
+d.department_name departamento
+FROM employees e
+INNER JOIN jobs j
+ON e.job_id = j.job_id
+INNER JOIN departments d
+ON e.department_id = d.department_id
+WHERE e.salary IN (8000, 9000, 10000);
+
+SELECT e.first_name AS nombre,
+e.last_name apellido,
+j.job_title trabajo,
+d.department_name departamento
+FROM employees e
+LEFT JOIN jobs j
+ON e.job_id = j.job_id
+LEFT JOIN departments d
+ON e.department_id = d.department_id
+WHERE e.salary IN (8000, 9000, 10000);
