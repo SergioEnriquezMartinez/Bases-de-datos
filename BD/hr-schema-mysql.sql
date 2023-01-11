@@ -2927,3 +2927,152 @@ ON e.job_id = j.job_id
 LEFT JOIN departments d
 ON e.department_id = d.department_id
 WHERE e.salary IN (8000, 9000, 10000);
+
+/*Nombre y apellidos de los empleados y los trabajos por los que han pasado*/
+SELECT e.first_name, e.last_name, j.job_title
+FROM employees e
+JOIN job_history jh
+ON e.employee_id = jh.employee_id
+JOIN jobs j
+ON j.job_id = jh.job_id;
+
+/*Nombre y apellidos de los empleados, trabajos por los que ha pasado y fecha en la que empezó; ordenados por nombre, apellidos y fecha de comienzo*/
+SELECT e.first_name, e.last_name, j.job_title,
+DATE_FORMAT(jh.start_date, '%d/%m/%Y')
+FROM employees e
+JOIN job_history jh
+ON e.employee_id = jh.employee_id
+JOIN jobs j
+ON j.job_id = jh.job_id
+ORDER BY 2, 1, jh.start_date;
+
+/*Añadimos el trabajo actual y cuando comenzó en él*/
+SELECT e.first_name, e.last_name, j.job_title,
+DATE_FORMAT(jh.start_date, '%d/%m/%Y')
+FROM employees e
+JOIN job_history jh
+ON e.employee_id = jh.employee_id
+JOIN jobs j
+ON j.job_id = jh.job_id
+UNION ALL
+SELECT e.first_name, e.last_name, j.job_title,
+DATE_FORMAT(e.hire_date, '%d/%m/%Y')
+AS "Fecha inicio"
+FROM employees e
+JOIN jobs j
+ON e.job_id = j.job_id
+ORDER BY 2, 1;
+
+SELECT e.first_name, e.last_name, j.job_title,
+DATE_FORMAT(jh.start_date, '%d/%m/%Y')
+AS "Fecha inicio", "Historico" AS trabajo
+FROM employees e
+JOIN job_history jh
+ON e.employee_id = jh.employee_id
+JOIN jobs j
+ON j.job_id = jh.job_id
+UNION ALL
+SELECT e.first_name, e.last_name, j.job_title,
+DATE_FORMAT(e.hire_date, '%d/%m/%Y')
+AS "Fecha inicio", "Actual" AS trabajo
+FROM employees e
+JOIN jobs j
+ON e.job_id = j.job_id
+ORDER BY 2, 1;
+
+/*La misma consulta pero en lugar de trabajos queremos saber los departamentos*/
+
+SELECT e.first_name, e.last_name, d.department_name,
+DATE_FORMAT(jh.start_date, '%d/%m/%Y')
+AS "Fecha inicio", "Historico" AS "¿Actual?"
+FROM employees e
+JOIN job_history jh
+ON e.employee_id = jh.employee_id
+JOIN departments d
+ON d.department_id = jh.department_id
+UNION ALL
+SELECT e.first_name, e.last_name,
+COALESCE(d.department_name, '--') AS "Dept.",
+DATE_FORMAT(e.hire_date, '%d/%m/%Y')
+AS "Fecha inicio", "Actual" AS "¿Actual?"
+FROM employees e
+JOIN departments d
+ON e.department_id = d.department_id
+ORDER BY 2, 1;
+
+SELECT first_name, last_name, Dept, FechaInicio, esActual
+FROM (
+    SELECT e.first_name, e.last_name, 
+            d.department_name AS "Dept",
+            DATE_FORMAT(jh.start_date, '%d/%m/%Y')
+            AS "FechaInicio",
+            "Historico" AS "esActual",
+            jh.start_date AS "fecha"
+    FROM Employees e
+    JOIN Job_history jh
+        ON e.employee_id = jh.employee_id
+    JOIN Departments d
+        ON d.department_id = jh.department_id
+    UNION ALL
+    SELECT e.first_name, e.last_name, 
+            COALESCE(d.department_name, '--') AS "Dept",
+            DATE_FORMAT(e.hire_date, '%d/%m/%Y')
+            AS "FechaInicio",
+            "Actual" AS "esActual",
+            e.hire_date AS "fecha"
+    FROM Employees e
+    LEFT JOIN Departments d
+        ON e.department_id = d.department_id
+    ) a
+ORDER BY last_name, first_name, fecha;
+
+/*Nombre y apellido de empleados que estan en los departamentos de ventas y marketing*/
+
+SELECT e.first_name, e.last_name,
+"Ventas" AS "Departamento"
+FROM employees e
+JOIN departments d
+ON e.department_id = d.department_id
+WHERE d.department_name = 'Sales'
+UNION
+SELECT e.first_name, e.last_name,
+"Marketing" AS "Departamento"
+FROM employees e
+JOIN departments d
+ON e.department_id = d.department_id
+WHERE d.department_name = 'Marketing'
+ORDER BY 2, 1;
+
+/*Queremos saber las regiones en las que se ubican cada uno de los departamentos*/
+
+SELECT d.department_name, r.region_name
+FROM departments d
+JOIN locations l
+ON d.location_id = l.location_id
+JOIN countries c
+ON l.country_id = c.country_id
+JOIN regions r
+ON c.region_id = r.region_id;
+
+/*Queremos saber los departamentos que hay en la misma region que el departamento de ventas pero sin sacaar el departmento de ventas porque ese ya lo sabemos*/
+
+SELECT d.department_name
+FROM regions r
+JOIN countries c
+ON r.region_id = c.region_id
+JOIN locations l
+ON l.country_id = c.country_id
+JOIN departments d
+ON l.location_id = d.location_id
+WHERE r.region_name = (
+	SELECT r.region_name
+	FROM regions r
+	JOIN countries c
+	ON r.region_id = c.region_id
+	JOIN locations l
+	ON l.country_id = c.country_id
+	JOIN departments d
+	ON l.location_id = d.location_id
+	WHERE d.department_name = 'Sales'
+)
+AND d.department_name <> 'Sales';
