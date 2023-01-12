@@ -3076,3 +3076,63 @@ WHERE r.region_name = (
 	WHERE d.department_name = 'Sales'
 )
 AND d.department_name <> 'Sales';
+
+/*Listado de empleados que esten en el mismo departamento que Ki Gee*/
+
+SELECT e.first_name, e.last_name
+FROM employees e
+WHERE e.department_id = (
+							SELECT department_id
+							FROM employees
+							WHERE last_name = 'Gee'
+							AND first_name = 'Ki'
+						);
+
+/*Si ponemos concat nos lo concatena*/
+
+SELECT CONCAT(e.first_name, ' ',  e.last_name) AS Empleado
+FROM employees e
+WHERE e.department_id = (
+							SELECT department_id
+							FROM employees
+							WHERE last_name = 'Gee'
+							AND first_name = 'Ki'
+						);
+
+/*Si ponemos un = es para un solo valor,
+mientras que si ponemos IN es para un listado de valores que estan en la subconsulta,
+NOT IN al contrario que el IN nos saca todo lo que no este dentro de la subconsulta*/
+
+/*Queremos saber los compañeros que tienen el mismo puesto de trabajo que Ki Gee*/
+
+SELECT CONCAT(e.first_name, ' ', e.last_name)
+FROM employees e
+WHERE e.job_id IN (
+	SELECT job_id
+	FROM employees
+	WHERE last_name = 'Gee'
+	AND first_name = 'Ki'
+);
+
+/*Ahora queremos saber los que no tienen el mismo trabajo*/
+
+SELECT CONCAT(e.first_name, ' ', e.last_name)
+FROM employees e
+WHERE e.job_id NOT IN (
+	SELECT job_id
+	FROM employees
+	WHERE last_name = 'Gee'
+	AND first_name = 'Ki'
+);
+
+/*Hecho de otra manera*/
+
+SELECT DISTINCT
+CONCAT(e.first_name, ' ', e.last_name) AS Empleado
+FROM employees e
+JOIN employees e2
+ON e.department_id <> e2.department_id
+WHERE e2.last_name = 'Gee'
+AND e2.first_name = 'Ki';
+
+/*Listado de todos los compañeros de departamento que ha tenido Jonathon Taylor*/
