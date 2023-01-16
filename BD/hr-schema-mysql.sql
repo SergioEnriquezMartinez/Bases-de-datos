@@ -3054,7 +3054,8 @@ ON l.country_id = c.country_id
 JOIN regions r
 ON c.region_id = r.region_id;
 
-/*Queremos saber los departamentos que hay en la misma region que el departamento de ventas pero sin sacaar el departmento de ventas porque ese ya lo sabemos*/
+/*Queremos saber los departamentos que hay en la misma region que el departamento
+de ventas pero sin sacaar el departmento de ventas porque ese ya lo sabemos*/
 
 SELECT d.department_name
 FROM regions r
@@ -3136,3 +3137,35 @@ WHERE e2.last_name = 'Gee'
 AND e2.first_name = 'Ki';
 
 /*Listado de todos los compañeros de departamento que ha tenido Jonathon Taylor*/
+
+/*empleados que estan en los departamentos de treasury, finance y sales*/
+
+SELECT CONCAT(e.first_name, ' ', e.last_name) AS 'Empleado', "Ventas" AS "Dept"
+FROM employees e
+JOIN departments d
+ON e.department_id = d.department_id
+WHERE d.department_name = 'Sales'
+UNION
+SELECT CONCAT(e.first_name, ' ', e.last_name) AS 'Empleado', "Financiero" AS "Dept"
+FROM employees e
+JOIN departments d
+ON e.department_id = d.department_id
+WHERE d.department_name = 'Finance'
+UNION
+SELECT CONCAT(e.first_name, ' ', e.last_name) AS 'Empleado', "Tesoreria" AS "Dept"
+FROM employees e
+JOIN departments d
+ON e.department_id = d.department_id
+WHERE d.department_name = 'Treasury';
+
+SELECT CONCAT(e.first_name, ' ', e.last_name) AS 'Empleado',
+DECODE_ORACLE(d.department_name, 'Sales', 'Ventas', 'Finance', 'Finanzas', 'Treasury', 'Tesoreria', 'si no es nada de lo anterior') AS "Dept"
+FROM employees e
+JOIN departments d
+ON e.department_id = d.department_id
+WHERE d.department_name IN ('Sales', 'Treasury', 'Finance');
+
+/*Nombre de todos los empleados de la empresa y 
+departamentos por los que han pasado y en el que está,
+y una variable que nos diga si está em ese departamento actualmente o no*/
+
