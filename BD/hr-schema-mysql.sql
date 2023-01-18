@@ -3023,7 +3023,7 @@ FROM (
     FROM Employees e
     LEFT JOIN Departments d
         ON e.department_id = d.department_id
-    ) a
+    )
 ORDER BY last_name, first_name, fecha;
 
 /*Nombre y apellido de empleados que estan en los departamentos de ventas y marketing*/
@@ -3169,3 +3169,17 @@ WHERE d.department_name IN ('Sales', 'Treasury', 'Finance');
 departamentos por los que han pasado y en el que está,
 y una variable que nos diga si está em ese departamento actualmente o no*/
 
+SELECT CONCAT(e.first_name,'', e.last_name) AS EMPLEADO,
+d.department_name as departamento, "actual" AS tipo
+FROM employees e 
+JOIN departments d 
+ON e.department_id = d.department_id
+UNION 
+SELECT CONCAT(e.first_name,'', e.last_name) AS EMPLEADO,
+d.department_name AS departamento, "historico" AS tipo
+FROM employees e 
+JOIN job_history jh
+ON e.employee_id = jh.employee_id
+JOIN departments d 
+ON d.department_id = jh.department_id
+ORDER BY 1;
