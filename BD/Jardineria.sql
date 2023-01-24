@@ -1002,3 +1002,11 @@ SELECT proveedor
 FROM producto
 GROUP BY proveedor
 HAVING COUNT(codigo_producto) > 10;
+
+/*Aquellos productores que sean sociedad anonima y me vendan mas de 10 productos*/
+
+SELECT proveedor
+FROM producto
+WHERE proveedor LIKE '%S.A.%'
+GROUP BY proveedor
+HAVING COUNT(codigo_producto) > 10;
