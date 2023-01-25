@@ -1010,3 +1010,57 @@ FROM producto
 WHERE proveedor LIKE '%S.A.%'
 GROUP BY proveedor
 HAVING COUNT(codigo_producto) > 10;
+
+/*Listado de productos y cantidad que se ha vendido de cada uno*/
+
+SELECT p.nombre, SUM(dp.cantidad)
+FROM producto p
+LEFT JOIN detalle_pedido dp
+ON p.codigo_producto = dp.codigo_producto
+GROUP BY p.nombre
+ORDER BY 2 DESC
+;
+
+/*Producto que más se ha vendido*/
+
+SELECT p.nombre, SUM(dp.cantidad)
+FROM producto p
+LEFT JOIN detalle_pedido dp
+ON p.codigo_producto = dp.codigo_producto
+GROUP BY p.nombre
+HAVING SUM(dp.cantidad) = (
+  SELECT MAX(SUM(COALESCE(dp.cantidad, 0)))
+  FROM detalle_pedido dp
+);
+
+/*Listado de oficinas y el numero de empleados que hay en cada oficina*/
+
+SELECT o.codigo_oficina, o.ciudad, COUNT(e.codigo_empleado) AS NumEmpl
+FROM oficina o
+LEFT JOIN empleado e
+ON o.codigo_oficina = e.codigo_oficina
+GROUP BY o.codigo_oficina, o.ciudad
+ORDER BY 3;
+
+/*Cuantas oficinas hay en cada pais*/
+
+SELECT pais, COUNT(codigo_oficina) AS NumOfic
+FROM oficina
+GROUP BY pais
+ORDER BY 2;
+
+/*Los jefes que hay y cuantos empleados tienen a su cargo*/
+
+SELECT CONCAT(j.nombre, ' ', j.apellido1, ' ', j.apellido2) AS Jefe, COUNT(e.codigo_empleado) AS NumEmple
+FROM empleado e
+JOIN empleado j
+ON e.codigo_jefe = j.codigo_empleado
+GROUP BY e.codigo_jefe;
+
+/*Cuantos jefes hay por region*/
+
+SELECT
+
+/*Listado de productos y la fecha de cuando fue su primera venta y la de la ultima vez que se vendio*/
+
+SELECT
