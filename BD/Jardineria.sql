@@ -1059,8 +1059,70 @@ GROUP BY e.codigo_jefe;
 
 /*Cuantos jefes hay por region*/
 
-SELECT
+SELECT o.region, COUNT(DISTINCT e.codigo_jefe) AS jefes
+FROM oficina o 
+LEFT JOIN empleado e 
+    ON o.codigo_oficina = e.codigo_oficina
+GROUP BY o.region;
+
 
 /*Listado de productos y la fecha de cuando fue su primera venta y la de la ultima vez que se vendio*/
 
-SELECT
+SELECT p.nombre, DATE_FORMAT(MIN(fecha_pedido), '%d/%m/%Y') AS PrimeraVenta,
+       DATE_FORMAT(MAX(fecha_pedido), '%d/%m/%Y') AS UltimaVenta
+FROM producto p 
+LEFT JOIN detalle_pedido dp 
+    ON p.codigo_producto = dp.codigo_producto
+LEFT JOIN pedido pe 
+    ON pe.codigo_pedido = dp.codigo_pedido
+GROUP BY p.nombre
+ORDER BY 1;
+
+/*La misma que la anterior y cuantas unidades se han vendido de cada unidad y cuantos pedidos se han hecho*/
+
+SELECT p.nombre, DATE_FORMAT(MIN(fecha_pedido), '%d/%m/%Y') AS PrimeraVenta,
+       DATE_FORMAT(MAX(fecha_pedido), '%d/%m/%Y') AS UltimaVenta,
+       COUNT(dp.codigo_pedido), SUM(IFNULL(dp.cantidad, 0))
+FROM producto p 
+LEFT JOIN detalle_pedido dp 
+    ON p.codigo_producto = dp.codigo_producto
+LEFT JOIN pedido pe 
+    ON pe.codigo_pedido = dp.codigo_pedido
+GROUP BY p.nombre
+ORDER BY 1;
+
+/*Queremos saber el beneficio total*/
+
+SELECT p.proveedor,
+SUM(p.precio_venta - p.precio_proveedor) * SUM(COALESCE(dp.cantidad, 0)) AS Beneficio
+FROM producto p
+LEFT JOIN detalle_pedido dp
+ON p.codigo_producto = dp.codigo_producto
+GROUP BY p.proveedor
+ORDER BY 1;
+
+/*Saber cuantos pedidos se han mandado a cada ciudad*/
+
+SELECT c.ciudad, COUNT(p.codigo_pedido)
+FROM pedido p
+JOIN cliente c
+ON c.codigo_cliente = p.codigo_cliente
+GROUP BY c.ciudad
+ORDER BY 2;
+
+/*Quiero saber las ciudades que me han hecho mas de 10 pedidos sin sacar el numero de pedidos*/
+
+SELECT c.ciudad
+FROM pedido p
+JOIN cliente c
+ON c.codigo_cliente = p.codigo_cliente
+GROUP BY c.ciudad
+HAVING COUNT(p.codigo_pedido) > 10
+ORDER BY 1;
+
+/*gasto que hemos tenido en la compra a proveedores*/
+
+SELECT SUM(dp.cantidad + p.cantidad_en_stock) * p.precio_proveedor AS Gastado
+FROM producto p
+JOIN detalle_pedido dp
+ON p.codigo_producto = dp.codigo_producto; --Esta mal, hay que corregir
