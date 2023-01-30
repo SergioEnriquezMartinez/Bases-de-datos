@@ -1126,3 +1126,20 @@ SELECT SUM(dp.cantidad + p.cantidad_en_stock) * p.precio_proveedor AS Gastado
 FROM producto p
 JOIN detalle_pedido dp
 ON p.codigo_producto = dp.codigo_producto; --Esta mal, hay que corregir
+
+/*Cuantos proveedores tenemos*/
+
+SELECT COUNT(DISTINCT proveedor)
+FROM producto;
+
+/*Cuantos empelados hay por cada puesto*/
+SELECT COUNT(codigo_empleado) AS Cantidad, puesto AS Puesto
+FROM empleado
+GROUP BY puesto;
+
+/*Cuantos puestos de trabajo hay por pais*/
+SELECT COUNT(e.puesto) AS Cantidad, e.puesto AS Puesto, o.pais
+FROM empleado e
+LEFT JOIN oficina o
+ON e.codigo_oficina = o.codigo_oficina
+GROUP BY o.pais;
