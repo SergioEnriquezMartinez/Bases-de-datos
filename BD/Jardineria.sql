@@ -1202,4 +1202,4 @@ FROM pago
 WHERE fecha_pago IS null;
 
 /*cuanto hemos facturado a cliente y lo comparamos con lo que nos ha pagado*/
-SELECT 
+SELECT SUM(cantidad * precio_unidad)
