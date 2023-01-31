@@ -1143,3 +1143,63 @@ FROM empleado e
 LEFT JOIN oficina o
 ON e.codigo_oficina = o.codigo_oficina
 GROUP BY o.pais;
+
+/*cantidad de cada producto vendido por pais*/
+SELECT SUM(COALESCE(dp.cantidad, 0)) AS Cantidad, p.nombre AS Producto, o.pais
+FROM producto p
+RIGHT JOIN detalle_pedido dp
+ON p.codigo_producto = dp.codigo_producto
+RIGHT JOIN pedido pe
+ON dp.codigo_pedido = pe.codigo_pedido
+RIGHT JOIN cliente c
+ON pe.codigo_cliente = c.codigo_cliente
+RIGHT JOIN empleado e
+ON c.codigo_empleado_rep_ventas = e.codigo_empleado
+RIGHT JOIN oficina o
+ON e.codigo_oficina = o.codigo_oficina
+GROUP BY o.pais, p.nombre;
+
+/*listado de productos de los que queden menos de 10 unidades en stock*/
+SELECT nombre, SUM(cantidad_en_stock)
+FROM producto
+WHERE cantidad_en_stock <= 10
+GROUP BY nombre;
+
+/*cuanto tiempo hemos estado esperando por cada pedido*/
+SELECT COALESCE(fecha_entrega, CURRENT_DATE()) - fecha_esperada AS Retraso
+FROM pedido;
+
+/*numero de clientes que han tenido que esperar mas de 10 dias*/
+SELECT c.nombre_cliente, c.nombre_contacto, c.apellido_contacto
+FROM pedido p
+JOIN cliente c
+ON p.codigo_cliente = c.codigo_cliente
+WHERE (COALESCE(fecha_entrega, CURRENT_DATE()) - fecha_esperada) > 10
+GROUP BY c.nombre_cliente, c.nombre_contacto, c.apellido_contacto
+ORDER BY 1 DESC;
+
+/*suma de todos los dias que han tenido que esperar por un retraso haya superado los 100 dias*/
+SELECT c.nombre_cliente, c.nombre_contacto, c.apellido_contacto
+FROM pedido p
+JOIN cliente c
+ON p.codigo_cliente = c.codigo_cliente
+GROUP BY c.nombre_cliente, c.nombre_contacto, c.apellido_contacto
+HAVING SUM((COALESCE(fecha_entrega, CURRENT_DATE()) - fecha_esperada)) > 100
+ORDER BY 1 DESC;
+
+/*numero de clientes a los que no les ha llegado algun pedido (fecha entrega = null)*/
+SELECT COUNT(DISTINCT(codigo_cliente))
+FROM pedido
+WHERE fecha_entrega IS null;
+
+/*cuando fue la primera vez que se ingreso algo y la ultima vez que se hizo*/
+SELECT MIN(fecha_pago), MAX(fecha_pago)
+FROM pago;
+
+/*cuantos clientes todavia no han pagado*/
+SELECT COUNT(DISTINCT codigo_cliente)
+FROM pago
+WHERE fecha_pago IS null;
+
+/*cuanto hemos facturado a cliente y lo comparamos con lo que nos ha pagado*/
+SELECT 
