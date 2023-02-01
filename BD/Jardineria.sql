@@ -1202,4 +1202,67 @@ FROM pago
 WHERE fecha_pago IS null;
 
 /*cuanto hemos facturado a cliente y lo comparamos con lo que nos ha pagado*/
-SELECT SUM(cantidad * precio_unidad)
+SELECT c.nombre_cliente, SUM(pa.total) AS "Total pagado",
+SUM(dp.cantidad * dp.precio_unidad) AS "Total facturado"
+FROM cliente c
+JOIN pago pa ON pa.codigo_cliente = c.codigo_cliente
+JOIN pedido p ON p.codigo_cliente = c.codigo_cliente
+JOIN detalle_pedido dp ON dp.codigo_pedido = p.codigo_pedido
+GROUP BY c.nombre_cliente;
+
+/*listado de productos y cuanto se ha facturado y cobrado de cada uno de ellos*/
+SELECT pr.nombre, SUM(COALESCE (pa.total,0)) AS "Total pagado",
+        SUM(COALESCE(dp.cantidad * dp.precio_unidad,0)) AS "Total facturado"
+FROM producto pr 
+LEFT JOIN detalle_pedido dp ON dp.codigo_producto = pr.codigo_producto
+LEFT JOIN pedido p ON p.codigo_pedido = dp.codigo_pedido
+LEFT JOIN cliente c ON c.codigo_cliente = p.codigo_cliente
+LEFT JOIN pago pa ON pa.codigo_cliente = c.codigo_cliente
+GROUP BY pr.nombre
+ORDER BY 2 DESC;
+
+/*cuanto se ha cobrado en cada oficina*/
+SELECT o.codigo_oficina, SUM(pa.total)
+FROM oficina o
+LEFT JOIN empleado e ON e.codigo_oficina = o.codigo_oficina
+LEFT JOIN cliente c ON c.codigo_empleado_rep_ventas = e.codigo_empleado
+LEFT JOIN pago pa ON pa.codigo_cliente = c.codigo_cliente
+GROUP BY 1;
+
+/*nombre de las ciudades en las que se ha facturado mas de 100.000*/
+SELECT o.ciudad
+FROM oficina o
+LEFT JOIN empleado e ON e.codigo_oficina = o.codigo_oficina
+LEFT JOIN cliente c ON c.codigo_empleado_rep_ventas = e.codigo_empleado
+LEFT JOIN pedido pe ON pe.codigo_cliente = c.codigo_cliente
+LEFT JOIN detalle_pedido dp ON dp.codigo_pedido = pe.codigo_pedido
+GROUP BY o.codigo_oficina
+HAVING SUM(dp.precio_unidad * dp.cantidad) >= 100000;
+
+/*nombre de las ciudades en las que se ha cobrado mas de 100.000*/
+SELECT o.ciudad, SUM(pa.total) AS 'TotalCobrado'
+FROM oficina o 
+LEFT JOIN empleado e ON o.codigo_oficina = e.codigo_oficina
+LEFT JOIN cliente c ON c.codigo_empleado_rep_ventas = e.codigo_empleado
+LEFT JOIN pago pa ON pa.codigo_cliente = c.codigo_cliente
+GROUP BY o.codigo_oficina
+HAVING SUM(pa.total) >= 100000;
+
+/*nombre de las ciudades en las que se ha cobrado mas de 20.000 y no esten en EEUU*/
+SELECT o.ciudad, SUM(pa.total) AS 'TotalCobrado', o.pais
+FROM oficina o 
+LEFT JOIN empleado e ON o.codigo_oficina = e.codigo_oficina
+LEFT JOIN cliente c ON c.codigo_empleado_rep_ventas = e.codigo_empleado
+LEFT JOIN pago pa ON pa.codigo_cliente = c.codigo_cliente
+GROUP BY o.codigo_oficina
+HAVING SUM(pa.total) >= 20000 AND o.pais <> 'EEUU';
+
+/*nombre de las ciudades done viven los clientes que han pagado mas de 1000
+y la media de pago del cliente sea superior a 100
+Además se deben quitar los clientes de Francia y Australia*/
+SELECT c.ciudad, c.nombre_cliente
+FROM cliente c
+JOIN pago pa ON pa.codigo_cliente = c.codigo_cliente
+WHERE c.pais <> 'Francia' AND c.pais <> 'Australia'
+GROUP BY c.ciudad
+HAVING AVG(pa.total) > 100 AND SUM(pa.total) > 1000;
