@@ -1266,3 +1266,33 @@ JOIN pago pa ON pa.codigo_cliente = c.codigo_cliente
 WHERE c.pais <> 'Francia' AND c.pais <> 'Australia'
 GROUP BY c.ciudad
 HAVING AVG(pa.total) > 100 AND SUM(pa.total) > 1000;
+
+/*lisado de regiones cuyas oficinas han cobrado mas de 50.000*/
+SELECT o.region, SUM(pa.total) AS 'TotalCobrado'
+FROM oficina o 
+LEFT JOIN empleado e ON o.codigo_oficina = e.codigo_oficina
+LEFT JOIN cliente c ON c.codigo_empleado_rep_ventas = e.codigo_empleado
+LEFT JOIN pago pa ON pa.codigo_cliente = c.codigo_cliente
+GROUP BY o.region
+HAVING SUM(pa.total) >= 50000;
+
+/*paises que no sean francia que facturen como media mas de 1000*/
+SELECT o.pais
+FROM oficina o 
+LEFT JOIN empleado e ON o.codigo_oficina = e.codigo_oficina
+LEFT JOIN cliente c ON c.codigo_empleado_rep_ventas = e.codigo_empleado
+LEFT JOIN pedido pe ON pe.codigo_cliente = c.codigo_cliente
+LEFT JOIN detalle_pedido dp ON dp.codigo_pedido = pe.codigo_pedido
+WHERE o.pais NOT LIKE 'Franc%'
+GROUP BY o.pais
+HAVING AVG(dp.cantidad * dp.precio_unidad) >= 1000;
+
+/*cuantos clientes tienen fax*/
+SELECT COUNT(fax)
+FROM cliente;
+
+/*lista de empleados y para cada uno de ellos el numero de clientes que tienen*/
+SELECT CONCAT(e.nombre, ' ', e.apellido1, ' ', e.apellido2), COUNT(c.codigo_cliente)
+FROM empleado e
+LEFT JOIN cliente c ON e.codigo_empleado = c.codigo_empleado_rep_ventas
+GROUP BY CONCAT(e.nombre, ' ', e.apellido1, ' ', e.apellido2);
