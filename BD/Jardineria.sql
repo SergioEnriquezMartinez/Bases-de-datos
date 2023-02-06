@@ -1296,3 +1296,34 @@ SELECT CONCAT(e.nombre, ' ', e.apellido1, ' ', e.apellido2), COUNT(c.codigo_clie
 FROM empleado e
 LEFT JOIN cliente c ON e.codigo_empleado = c.codigo_empleado_rep_ventas
 GROUP BY CONCAT(e.nombre, ' ', e.apellido1, ' ', e.apellido2);
+
+/*listado de clientes y suma total de cobros de clientes de cada uno,
+junto con el numero de clientes que tiene cada empleado*/
+SELECT CONCAT(e.nombre, ' ', e.apellido1, ' ', e.apellido2),
+COUNT(c.codigo_cliente),
+SUM(pa.total)
+FROM empleado e
+LEFT JOIN cliente c ON e.codigo_empleado = c.codigo_empleado_rep_ventas
+LEFT JOIN pago pa ON c.codigo_cliente = pa.codigo_cliente
+GROUP BY CONCAT(e.nombre, ' ', e.apellido1, ' ', e.apellido2);
+
+/*cual fue el primer producto que se entrego y cuando*/
+SELECT p.nombre
+FROM producto p
+JOIN detalle_pedido dp ON dp.codigo_producto = p.codigo_producto
+JOIN pedido pe ON pe.codigo_pedido = dp.codigo_pedido
+WHERE pe.fecha_entrega = (SELECT MIN(fecha_entrega)
+                          FROM pedido);
+
+/*cual fue el ultimo producto pedido y si se ha entregado o no*/
+SELECT p.nombre, pe.fecha_pedido, IF(pe.fecha_entrega IS null, 'No entregado', 'Entregado')
+AS EstaEntregado,
+(CASE WHEN pe.fecha_entrega IS null
+THEN 'No entregado'
+ELSE 'Entregado'
+END) AS Entregado
+FROM producto p
+JOIN detalle_pedido dp ON dp.codigo_producto = p.codigo_producto
+JOIN pedido pe ON pe.codigo_pedido = dp.codigo_pedido
+WHERE pe.fecha_pedido = (SELECT MAX(fecha_pedido)
+                          FROM pedido);
