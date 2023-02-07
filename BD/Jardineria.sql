@@ -1327,3 +1327,66 @@ JOIN detalle_pedido dp ON dp.codigo_producto = p.codigo_producto
 JOIN pedido pe ON pe.codigo_pedido = dp.codigo_pedido
 WHERE pe.fecha_pedido = (SELECT MAX(fecha_pedido)
                           FROM pedido);
+
+
+SELECT p.nombre, 'No entregado' AS estaEntregado
+FROM Producto p
+JOIN Detalle_pedido dp
+    ON p.codigo_producto = dp.codigo_producto
+JOIN pedido pe
+    ON pe.codigo_pedido = dp.codigo_pedido
+WHERE pe.fecha_pedido = (SELECT MAX(fecha_pedido)
+                             FROM pedido)
+AND pe.fecha_entrega IS NULL
+UNION
+SELECT p.nombre, 'Entregado' AS estaEntregado
+FROM Producto p
+JOIN Detalle_pedido dp
+    ON p.codigo_producto = dp.codigo_producto
+JOIN pedido pe
+    ON pe.codigo_pedido = dp.codigo_pedido
+WHERE pe.fecha_pedido = (SELECT MAX(fecha_pedido)
+                             FROM pedido)
+AND pe.fecha_entrega IS NOT NULL;
+
+/*Codigo de las oficinas que tienen más de 5 empleado*/
+SELECT o.codigo_oficina
+FROM oficina o
+JOIN empleado e ON e.codigo_oficina = o.codigo_oficina
+GROUP BY o.codigo_oficina
+HAVING COUNT(o.codigo_oficina) > 5;
+
+/*listado del numero de clientes por ciudad pero que no vivan en Francia ni en Inglaterra*/
+SELECT ciudad, COUNT(codigo_cliente)
+FROM cliente
+WHERE pais NOT IN ('France', 'United Kingdom')
+GROUP BY ciudad;
+
+/*listado de ciudades donde esten las oficinas con el numero de clientes que tienen las oficinas de cada ciudad
+pero que dichas oficinas tengan menos de 7 empleados y que no esten en Australia*/
+SELECT o.ciudad, COUNT(c.codigo_cliente) AS NumClientes
+FROM oficina o
+JOIN empleado e ON o.codigo_oficina = e.codigo_oficina
+JOIN cliente c ON c.codigo_empleado_rep_ventas = e.codigo_empleado
+WHERE o.pais <> 'Australia'
+GROUP BY o.ciudad
+HAVING COUNT(e.codigo_empleado) < 7
+;
+
+/*listado de clientes indicando si tienen fax o no que vivan en una ciudad con mas de 10 pedidos*/
+SELECT c.nombre_cliente, 'Sin fax' AS Fax
+FROM cliente c
+JOIN pedido p
+    ON c.codigo_cliente = p.codigo_cliente
+WHERE c.fax IS NULL
+GROUP BY c.nombre_cliente
+HAVING COUNT(p.codigo_pedido) > 10
+UNION
+SELECT c.nombre_cliente, 'Con fax' AS Fax
+FROM cliente c
+JOIN pedido p
+    ON c.codigo_cliente = p.codigo_cliente
+WHERE c.fax IS NOT NULL
+GROUP BY c.nombre_cliente
+HAVING COUNT(p.codigo_pedido) > 10
+;
