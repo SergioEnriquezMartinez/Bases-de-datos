@@ -947,7 +947,8 @@ WHERE precio_venta = (
                         FROM producto)
 ;
 
-/*Productos que tengan como precio de venta la media de los precios de los productos con una variacion de +-10%*/
+/*Productos que tengan como precio de venta la media de los precios de los productos
+con una variacion de +-10%*/
 
 SELECT nombre, precio_venta
 FROM producto
@@ -1390,3 +1391,82 @@ WHERE c.fax IS NOT NULL
 GROUP BY c.nombre_cliente
 HAVING COUNT(p.codigo_pedido) > 10
 ;
+
+
+/*examen 8/2*/
+/*oficinas de australia y eeuu que tengan mas de 5 empleados*/
+SELECT e.codigo_oficina, COUNT(e.codigo_empleado)
+FROM empleado e
+JOIN oficina o ON o.codigo_oficina = e.codigo_oficina
+WHERE o.pais IN ('Australia', 'EEUU')
+GROUP BY e.codigo_oficina
+HAVING COUNT(e.codigo_empleado) > 5;
+
+/*numero de pedidos que hay por cada estado de pedido ordenado por estado desc*/
+SELECT COUNT(p.codigo_pedido) AS 'Pedido', p.estado AS 'Estado'
+FROM pedido p
+GROUP BY p.estado
+ORDER BY p.estado DESC;
+
+/*numero de pedidos pagados en funcion del estado ordenado por nombre de estados*/
+SELECT COUNT(p.codigo_pedido) AS 'Pedido', p.estado AS 'Estado'
+FROM pedido p
+JOIN cliente c ON c.codigo_cliente = p.codigo_cliente
+JOIN pago pa ON pa.codigo_cliente = c.codigo_cliente
+WHERE pa.fecha_pago IS NOT null
+GROUP BY p.estado
+ORDER BY p.estado;
+
+/*producto que tenga el mayor precio por unidad*/
+SELECT p.nombre, dp.precio_unidad
+FROM producto p
+JOIN detalle_pedido dp ON dp.codigo_producto = p.codigo_producto
+GROUP BY p.nombre
+HAVING MAX(dp.precio_unidad)
+ORDER BY dp.precio_unidad DESC
+LIMIT 1;
+
+/*oficina que ha recibido el ultimo pago*/
+SELECT o.codigo_oficina, pa.fecha_pago
+FROM oficina o
+JOIN empleado e ON e.codigo_oficina = o.codigo_oficina
+JOIN cliente c ON c.codigo_empleado_rep_ventas = e.codigo_empleado
+JOIN pago pa ON pa.codigo_cliente = c.codigo_cliente
+HAVING MAX(pa.fecha_pago);
+
+/*cuantos numero de telefono hay de cada tipo entre los cliente indicando el tipo y su cantidad*/
+SELECT
+(CASE WHEN LEFT(telefono, 1) = '9' THEN 'Fijo de España'
+WHEN LEFT(telefono, 3) = '349' THEN 'Fijo de España Internacional'
+WHEN LEFT(telefono, 1) = '6' THEN 'Movil de España'
+WHEN LEFT(telefono, 3) = '555' THEN 'USA'
+WHEN LEFT(telefono, 3) = '(33)' THEN 'Francia'
+WHEN LEFT(telefono, 1) = '2' THEN 'Australia'
+ELSE 'No sabemos de donde llama'
+END) AS 'Tipo',
+COUNT(telefono) AS 'Cantidad'
+FROM cliente
+GROUP BY 1;
+/*maximo y minimo limite de credito de los clientes por pais, pero los que el medio sea superior a 10000*/
+SELECT pais, MAX(limite_credito), MIN(limite_credito), AVG(limite_credito)
+FROM cliente
+GROUP BY pais
+HAVING AVG(limite_credito) >= 10000
+ORDER BY 3 DESC;
+
+/*listado de productos con la suma total de unidades vendidas de cada uno, pero solo aqueloos que avg < 15*
+order mas vendidas primero*/
+SELECT p.nombre, SUM(dp.cantidad)
+FROM producto p
+JOIN detalle_pedido dp ON dp.codigo_producto = p.codigo_producto
+HAVING AVG(dp.cantidad) < 15
+GROUP BY p.nombre
+ORDER BY 2 DESC;
+
+/*listado de puestos de trabajo de aquellos empleados que son jefes y cuantos empleados hay subordinados
+en cada puesto order by numeros de empleados desc*/
+SELECT puesto, COUNT(codigo_empleado)
+FROM empleado
+WHERE codigo_jefe IS NOT null
+GROUP BY codigo_jefe
+ORDER BY COUNT(codigo_empleado) DESC;
