@@ -1465,8 +1465,8 @@ ORDER BY 2 DESC;
 
 /*listado de puestos de trabajo de aquellos empleados que son jefes y cuantos empleados hay subordinados
 en cada puesto order by numeros de empleados desc*/
-SELECT puesto, COUNT(codigo_empleado)
-FROM empleado
-WHERE codigo_jefe IS NOT null
-GROUP BY codigo_jefe
-ORDER BY COUNT(codigo_empleado) DESC;
+SELECT j.puesto, COUNT(e.codigo_empleado)
+FROM empleado j
+JOIN empleado e ON e.codigo_empleado = j.codigo_jefe
+GROUP BY j.puesto
+ORDER BY COUNT(e.codigo_empleado) DESC;
