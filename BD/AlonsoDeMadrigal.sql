@@ -99,3 +99,20 @@ LEFT JOIN AlumnoAsignatura aa ON aa.codAlumno = al.idAlumno
 LEFT JOIN Asignaturas ag ON ag.idAsignatura = aa.codAsignatura
 ORDER BY 1;
 
+CREATE VIEW vDatosAlumnos AS
+SELECT al.nombre, al.email, cl.ciclo, ag.asignatura
+FROM Alumnos al
+JOIN Ciclos cl ON al.codCiclo = cl.idCiclo
+LEFT JOIN AlumnoAsignatura aa ON al.idAlumno = aa.codAlumno
+LEFT JOIN Asignaturas ag ON ag.idAsignatura = aa.codAsignatura;
+
+SELECT * FROM vDatosAlumnos;
+
+
+
+
+
+
+
+
+COMMIT;
