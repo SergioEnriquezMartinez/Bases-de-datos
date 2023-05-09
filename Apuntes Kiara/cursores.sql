@@ -402,3 +402,21 @@ BEGIN
         END LOOP;
     END LOOP;
 END;
+
+/*Actualizar salario de empleados un 30% mas*/
+
+DECLARE
+	CURSOR cursorEmp IS
+		SELECT first_name, last_name, salary
+		FROM employees
+		FOR UPDATE OF salary NOWAIT;
+BEGIN
+	FOR regEmp IN cursorEmp LOOP
+		IF (regEmp.salary < 2600) THEN
+			dbms_output.put_line('Empleado ' || regEmp.last_name || ' ' || regEmp.first_name || '. Para ganar ' || regEmp.salary || '  a ganar ' || regEmp.salary * 1.30);
+			UPDATE employees SET salary = salary * 1.30
+			WHERE CURRENT OF cursorEmp;
+		END IF;
+	END LOOP;
+	COMMIT;
+END;
