@@ -378,3 +378,27 @@ BEGIN
 	close jobsList;
 	close employeeList;
 END;
+
+DECLARE
+    CURSOR cursorTrabajos(filtro hr.jobs.min_salary%TYPE) IS
+        SELECT job_id, job_tittle, min_salary, max_salary
+        FROM hr.jobs
+        WHERE (min_salary >= filtro)
+        ORDER BY job_titlle;
+    
+    CURSOR cursorEmp(filtroTrabajo hr.employees.job_id&TYPE) IS
+        SELECT first_name, last_name, salary
+        FROM hr.employees
+        WHERE job_id = filtroTrabajo;
+BEGIN
+    dbms_output.put_line('TRABAJOS');
+    
+    FOR regTrab IN cursorTrabajos(5000) LOOP
+        dbms_output.put_line('---------------------------------------------------------');
+        dbms_output.put_line(regTrab.job_title || ': Sueldo entre ' || regTrab.min_salary || ' y ' || regTrab.max_salary);
+        dbms_output.put_line('---------------------------------------------------------');
+        FOR regEmp IN cursorEmp(regTrab.job_id) LOOP
+            dbms_output.put_line(' + Empleado: ' || regEmp.last_name || ', ' || regEmp.first_name || '. Sueldo: ' || regEmp.salary);
+        END LOOP;
+    END LOOP;
+END;
