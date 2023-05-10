@@ -420,3 +420,117 @@ BEGIN
 	END LOOP;
 	COMMIT;
 END;
+
+/*-- CURSOR QUE MODIFICAN DATOS 
+-- (REDONDEAR LOS SUELDOS DE LOS EMPLEADOS A SU SUELDO MÁS BAJO O MÁS ALTO, EN FUNCIÓN DEL RANGO DE SUELDOS EN SU TRABAJO:
+
+Por cada trabajo cuyo titulo empiece por SALES sacar su salario mínimo y el salario máximo.
+A continuación sacar el sueldo medio de ese trabajo.
+Para finalizar sacar por cada empleado de ese trabajo si se le sube o se le baja su sueldo en función de:
+- Si tiene un sueldo mayor a la media LE SUBIMOS EL SUELDO y le actualizamos al salario máximo de su trabajo. 
+- Si tiene un sueldo menor a la media, LE BAJAMOS EL SUELDO y le actualizamos al salario mínimo de su trabajo.
+
+ 
+
+TRABAJOS
+-------------------------------------------------------
+Sales Manager: Sueldo entre 10000 y 20000
+-------------------------------------------------------
+El sueldo medio es: 15000
+ + Empleado: Cambrault, Gerald
+ --- se BAJA su sueldo de 11000 a 10000
+ + Empleado: Errazuriz, Alberto
+ --- se BAJA su sueldo de 12000 a 10000
+...
+-------------------------------------------------------
+Sales Representative: Sueldo entre 6000 y 12000
+-------------------------------------------------------
+El sueldo medio es: 9000
+ + Empleado: Ande, Sundar
+ --- se BAJA su sueldo de 6400 a 6000
+ + Empleado: Banda, Amit
+ --- se BAJA su sueldo de 6200 a 6000
+ + Empleado: Bernstein, David
+ --- se SUBE su sueldo de 9500 a 12000
+ + Empleado: Cambrault, Nanette
+ --- se BAJA su sueldo de 7500 a 6000
+ + Empleado: Doran, Louise
+ --- se BAJA su sueldo de 7500 a 6000
+ + Empleado: Greene, Danielle
+ --- se SUBE su sueldo de 9500 a 12000
+ + Empleado: Hall, Peter
+ --- se SUBE su sueldo de 9000 a 12000
+*/
+
+DECLARE
+     CURSOR cJobList IS
+        SELECT job_title, min_salary, max_salary, (min_salary + max_salary)/2 AS media
+        FROM jobs
+        WHERE job_title LIKE 'Sales%'
+        GROUP BY job_title, min_salary, max_salary;
+    
+    CURSOR cWorkerList(filtroJobs hr.jobs.job_title%TYPE) IS
+        SELECT first_name, last_name, salary
+        FROM employees
+        WHERE job_id LIKE filtroJobs
+        FOR UPDATE OF salary NOWAIT;
+BEGIN
+    FOR rJobList IN cJobList LOOP
+        dbms_output.put_line('-------TRABAJOS-------');
+        dbms_output.put_line('----------------------');
+        dbms_output.put_line(rJobList.job_title || ': sueldo entre: ' || rJobList.min_salary || ' y ' || rJobList.max_salary);
+        dbms_output.put_line('El sueldo medio es: ' || rJobList.media);
+        dbms_output.put_line('----------------------');
+        FOR rWorkerList IN cWorkerList(rJobList.job_title) LOOP
+            dbms_output.put_line('Empleado: ' || rWorkerList.first_name || ' ' || rWorkerList.last_name || ' tiene un sueldo de ' || rWorkerList.salary);
+            IF (rWorkerList.salary < rJobList.media) THEN
+                dbms_output.put_line(rWorkerList.first_name || ' ' || rWorkerList.last_name);
+                dbms_output.put_line('Su sueldo baja de ' || rWorkerList.salary || ' a ' || rJobList.min_salary);
+                UPDATE employees SET salary = rJobList.min_salary WHERE salary LIKE rJobList.job_title;
+            ELSE
+                dbms_output.put_line(rWorkerList.first_name || ' ' || rWorkerList.last_name);
+                dbms_output.put_line('Su sueldo sube de ' || rWorkerList.salary || ' a ' || rJobList.max_salary);
+                UPDATE employees SET salary = rJobList.max_salary WHERE salary LIKE rJobList.job_title;
+            END IF;
+        END LOOP;
+    END LOOP;
+END;
+
+DECLARE
+    CURSOR cursorTrabajos(filtro hr.jobs.job_title%TYPE) IS
+        SELECT job_id, job_title, min_salary, max_salary
+        FROM jobs
+        WHERE (UPPER(job_title) LIKE filtro)
+        ORDER BY job_title;
+
+    CURSOR cursorEmp(filtroTrabajo hr.employees.job_id%TYPE) IS 
+        SELECT first_name, last_name, salary
+        FROM employees
+        WHERE job_id = filtroTrabajo
+        order by last_name, first_name
+        FOR UPDATE OF salary NOWAIT;
+
+    var_sueldo_medio employees.salary%TYPE;
+BEGIN
+    dbms_output.put_line('TRABAJOS');
+    FOR regTrab IN cursorTrabajos('SALES%') LOOP
+        dbms_output.put_line('-------------------------------------------------------');
+        dbms_output.put_line(regTrab.job_title || '. Sueldo entre ' || regTrab.min_salary || ' y ' || regTrab.max_salary);
+        dbms_output.put_line('-------------------------------------------------------');
+        
+        var_sueldo_medio := (regTrab.min_salary + regTrab.max_salary) / 2;
+
+        FOR regEmp IN cursorEmp(regTrab.job_id) LOOP
+            dbms_output.put_line(' + Empleado: ' || regEmp.last_name || ', ' || regEmp.first_name);
+            IF (regEmp.salary >= var_sueldo_medio) THEN
+                dbms_output.put_line(' --- Se SUBE su sueldo de ' || regEmp.salary || ' a ' || regTrab.max_salary);
+                UPDATE employees set salary = regTrab.max_salary 
+                where current of cursorEmp;
+            ELSE
+                dbms_output.put_line(' --- Se BAJA su sueldo de ' || regEmp.salary || ' a ' || regTrab.min_salary);
+                UPDATE employees set salary = regTrab.min_salary 
+                where current of cursorEmp;
+            END IF;
+        END LOOP;
+    END LOOP;
+END;
