@@ -136,11 +136,14 @@ DECLARE
     FROM empleados e
     JOIN departamentos d
     ON e.id_departamento = d.id_departamento
-    WHERE nombre_departamento LIKE 'Ventas';
+    WHERE nombre_departamento LIKE 'Ventas'
+    FOR UPDATE OF salario NOWAIT;
 BEGIN
   FOR rEmpleados IN cEmpleados LOOP
     IF (rEmpleados.salario < 5000) THEN
-      UPDATE empleados SET salario = salario * 1.02;
+      UPDATE empleados SET salario = salario * 1.02
+      WHERE CURRENT OF cEmpleados;
     END IF;
   END LOOP;
+  COMMIT; /*En caso de hacer inserte, update o delete (si modificamos datos) hay que poner el commit*/
 END;
