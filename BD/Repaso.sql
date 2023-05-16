@@ -110,10 +110,25 @@ BEGIN
 END;
 
 
+DECLARE
+  v_empleado empleados%ROWTYPE;
+BEGIN
+  SELECT * 
+  INTO v_empleado
+  FROM empleados
+  WHERE id_empleado = 3;
+
+  DBMS_OUTPUT.PUT_LINE('Datos del empleado:');
+  DBMS_OUTPUT.PUT_LINE('ID del empleado: ' || v_empleado.id_empleado);
+  DBMS_OUTPUT.PUT_LINE('Nombre:' || v_empleado.nombre_empleado);
+  DBMS_OUTPUT.PUT_LINE('Salario:' || v_empleado.salario);
+END;
+
+
+
 /*5. Queremos actualizar los salarios de los empleados que trabajan en el departamento 'Ventas'
 y que ganan menos de 5000. Les queremos subir un 2%.*/
 
-UPDATE empleados SET salario WHERE nombre_departamento LIKE 'Ventas';
 
 DECLARE
   CURSOR cEmpleados IS
