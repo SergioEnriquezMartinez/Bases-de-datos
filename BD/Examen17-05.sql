@@ -266,5 +266,5 @@ BEGIN
             WHERE CURRENT OF cProductos;
             DBMS_OUTPUT.PUT_LINE(rProducto.descripc || '. Pasa de costar ' || rProducto.precio || ' a costar ' || (rProducto.precio + 10));
         END IF;
-    END LOOP
+    END LOOP;
 END;
