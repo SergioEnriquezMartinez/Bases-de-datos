@@ -1,3 +1,6 @@
+
+/*EXCEPCIONES*/
+
 /*Ejemplo captura de excepciones:*/
 DECLARE
     var_salario hr.employees.salary%TYPE;
@@ -210,4 +213,106 @@ EXCEPTION
     WHEN OTHERS THEN
         DBMS_OUTPUT.PUT_LINE('Error: Ha ocurrido un problema al actualizar los datos.');
 
+END;
+
+/*En la tabla Empleados captura la excepción NO_DATA_FOUND cuando se intente buscar un empleado por su ID y no se encuentre en la tabla.
+En la excepción deberá mostrar el id del empleado que no ha encontrado. */
+
+DECLARE
+	v_id_empleado NUMBER := 1;
+	v_nombre_empleado VARCHAR2(100);
+BEGIN
+	SELECT nombre INTO v_nombre_empleado
+	FROM empleado
+	WHERE id = v_id_empleado;
+
+	DBMS_OUTPUT.PUT_LINE('El nombre de empleado con ID ' || v_id_empleado || ' es ' || v_nombre_empleado);
+EXCEPTION
+	WHEN NO_DATA_FOUND THEN
+		DBMS_OUTPUT.PUT_LINE('Error: No se encontró ningún empleado con ID ' || v_id_empleado);
+	WHEN OTHERS THEN
+		DBMS_OUTPUT.PUT_LINE('Error: Ha ocurrido un problema al buscar el empleado con ID ' || v_id_empleado);
+END;
+
+
+/*Crear una excepción llamada salario_invalido y asígnala el número -20001.
+Esta excepción se disparará cuando se intente insertar un empleado con un salario negativo.*/
+
+DECLARE
+    e_salario_invalido EXCEPTION;
+    PRAGMA EXCEPTION_INIT(e_salario_invalido, -20001); 
+    v_salario NUMBER(10) := -200;
+    v_id_empeleado NUMBER := 2;
+BEGIN
+    IF (v_salario > 0) THEN
+        INSERT INTO Empleados VALUES(v_id_empeleado, 'Sergio', v_salario);
+        DBMS_OUTPUT.PUT_LINE('Empleado insertado con éxito.');
+    ELSE
+        RAISE e_salario_invalido; --En este caso seria con RAISE_APLICATION_ERROR porque la excepcion supera el 20.000
+    END IF;
+EXCEPTION
+    WHEN e_salario_invalido THEN
+        DBMS_OUTPUT.PUT_LINE('Error: Ha intentado insertar un salario negativo.');
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error: Ha habido un problema al insertar el empleado.');
+END;
+
+
+/*PROCEDURES*/
+
+CREATE TABLE Hotel (
+    ID NUMBER(2) PRIMARY KEY,
+    NHABS NUMBER(3)
+);
+
+INSERT INTO Hotel VALUES (1, 10);
+INSERT INTO Hotel VALUES (2, 60);
+INSERT INTO Hotel VALUES (3, 200);
+INSERT INTO Hotel VALUES (99, null);
+
+/*
+crea un procedimiento en el que si ejecutamos:
+
+BEGIN
+    TAMHOTEL(1);
+    TAMHOTEL(2);
+    TAMHOTEL(3);
+    TAMHOTEL(99);
+END;
+
+obtengamos el siguiente resultado según su tamaño:
+
+El hotel con el ID 1 es Pequeño (El hotel tiene menos de 50 habitaciones)
+El hotel con el ID 2 es Mediano (El hotel tiene entre 50 y 100 habitaciones)
+El hotel con el ID 3 es Grande (El hotel tiene mas de 100 habitaciones)
+El hotel con el ID 99 es de tamaño indeterminado
+
+*/
+
+CREATE OR REPLACE PROCEDURE TAMHOTEL (cod Hotel.ID%TYPE)
+AS
+    v_numHabs HOTEL.NHABS%TYPE;
+BEGIN
+    SELECT NHABS INTO v_numHabs
+    FROM Hotel
+    WHERE ID = cod;
+
+    IF v_numHabs IS NULL THEN
+        Comentario := 'de tamaño indeterminado';
+    ELSEIF v_numHabs < 50 THEN
+        Comentario := 'Pequeño';
+    ELSEIF v_numHabs < 100 THEN
+        Comentario := 'Mediano';
+    ELSE 
+        Comentario := 'Grande';
+    END IF;
+        
+    DBMS_OUTPUT.PUT_LINE('El hotel con el ID ' || cod || ' es ' || Comentario);
+END;
+
+BEGIN
+    TAMHOTEL(1);
+    TAMHOTEL(2);
+    TAMHOTEL(3);
+    TAMHOTEL(99);
 END;
