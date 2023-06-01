@@ -316,3 +316,12 @@ BEGIN
     TAMHOTEL(3);
     TAMHOTEL(99);
 END;
+
+
+/*PAQUETES
+
+tiene una cabecera y un cuerpo que han de llamarse igual
+la cabecera se crea con package y el cuerpo con package body
+al finalizar el paquete podemos poner end nombrePaquete, al igual que en las funciones
+*/
+
