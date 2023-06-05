@@ -325,3 +325,103 @@ la cabecera se crea con package y el cuerpo con package body
 al finalizar el paquete podemos poner end nombrePaquete, al igual que en las funciones
 */
 
+--el paquete en cuestion:
+
+CREATE OR REPLACE PACKAGE paquete1 
+IS 
+    v_cont NUMBER(2) := 0;
+    PROCEDURE reset_cont (v_nuevo_cont NUMBER); 
+    FUNCTION devolver_cont RETURN NUMBER; 
+END paquete1;
+
+
+CREATE OR REPLACE PACKAGE BODY paquete1 
+IS 
+    PROCEDURE reset_cont (v_nuevo_cont NUMBER) IS 
+    BEGIN 
+    v_cont := v_nuevo_cont; 
+    END reset_cont; 
+
+    FUNCTION devolver_cont RETURN NUMBER IS 
+    BEGIN 
+    RETURN v_cont; 
+    END devolver_cont;
+END paquete1;
+
+--empezamos a hacer cositas con el paquete
+
+DECLARE
+    contador NUMBER(2);
+BEGIN
+    paquete1.reset.cont(10);
+    SELECT paquete1.devolver_cont() INTO contador FROM DUAL;
+    DBMS_OUTPUT.PUT_LINE('El contador es: ' || contador);
+END;
+
+--OTRA FORMA DE HACER ESTO:
+
+DECLARE
+    contador NUMBER(2);
+BEGIN
+    paquete1.reset.cont(0);
+    contador := paquete1.devolver_cont();
+    DBMS_OUTPUT.PUT_LINE('El contador es: ' || contador);
+END;
+
+--Y OTRA FORMA ADICIONAL:
+
+DECLARE
+    contador NUMBER(2);
+BEGIN
+    paquete1.v_cont := 16;
+    contador := paquete1.devolver_cont();
+    DBMS_OUTPUT.PUT_LINE('El contador es: ' || contador);
+END;
+
+/*
+Crear un paquete que tenga lo siguiente:
+ - una variable versión 
+ - un procedimiento que me muestre el valor de la versión
+ - una función suma que sume dos números y devuelva la SUMA
+ - una función resta que reste dos números y devuelva la RESTA
+ - una función multiplica que multiplique dos números y devuelva la MULTIPLICACIÓN
+ - una función divide que divida dos números y devuelva la DIVISIÓN
+*/
+
+CREATE OR REPLACE PACKAGE paquete2
+IS
+    v_version NUMBER := 1.0;
+    PROCEDURE mostrarInfo;
+    FUNCTION suma(a NUMBER, b NUMBER) RETURN NUMBER;
+    FUNCTION resta(a NUMBER, b NUMBER) RETURN NUMBER;
+    FUNCTION multiplica(a NUMBER, b NUMBER) RETURN NUMBER;
+    FUNCTION divide(a NUMBER, b NUMBER) RETURN NUMBER;
+END paquete2;
+
+CREATE OR REPLACE PACKAGE BODY paquete2
+IS
+    PROCEDURE mostrarInfo (v_version) IS
+    BEGIN
+        DBMS_OUTPUT.PUT_LINE(v_version);
+    END;
+
+    FUNCTION suma(a NUMBER, b NUMBER) RETURN NUMBER IS
+    BEGIN
+        RETURN (a + b);
+    END;
+
+    FUNCTION resta(a NUMBER, b NUMBER) RETURN NUMBER IS
+    BEGIN
+        RETURN (a - b);
+    END;
+    
+    FUNCTION multiplica(a NUMBER, b NUMBER) RETURN NUMBER IS
+    BEGIN
+        RETURN (a * b);
+    END;
+    
+    FUNCTION divide(a NUMBER, b NUMBER) RETURN NUMBER IS
+    BEGIN
+        RETURN (a / b);
+    END;
+END paquete2;
