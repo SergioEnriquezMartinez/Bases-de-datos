@@ -425,3 +425,59 @@ IS
         RETURN (a / b);
     END;
 END paquete2;
+
+/*---------------TRIGGERS------------------*/
+
+CREATE OR REPLACE TRIGGER trAltaEmp
+    BEFORE INSERT ON employees
+BEGIN
+    IF (TO_CHAR(SYSDATE, 'HH24')) NOT IN ('10', '11', '12') THEN
+        RAISE_APPLICATION_ERROR(-20001, 'Error, solo se puede dar de alta Empleados entre las 10 y las 12:59');
+    END IF;
+END;
+
+ALTER TRIGGER trAltaEmp ENABLE;
+
+INSERT INTO employees(employee_id, first_name, last_name, email, hire_date, job_id, salary)
+VALUES (998, 'Luis', 'Fernandez', 'luis.fernandez', '03/02/2015', 'ST_MAN', 7000);
+
+------------------------------------------------------------------
+
+
+
+
+
+
+-------------------------------------------------------------------
+
+CREATE TABLE SUBIDAS_SUELDO(
+    subidas_sueldo_id number(6) constraint sub_sue_pk primary key,
+    employee_id number(6),
+    first_name varchar2(20),
+    last_name varchar2(25),
+    old_salary number(8,2),
+    new_salary number(8,2),
+    fecha date
+);
+
+CREATE SEQUENCE seq_subidas_sueldo
+START WITH 1
+INCREMENT BY 1;
+
+CREATE OR REPLACE TRIGGER trCambioSueldo
+    BEFORE UPDATE OF salary
+    ON employees
+    FOR EACH ROW
+    WHEN (OLD.salary < NEW.salary)
+BEGIN
+    INSERT INTO SUBIDAS_SUELDO
+    VALUES (seq_subidas_sueldo.nextval,
+    :OLD.employee_id,
+    :OLD.first_name,
+    :OLD.last_name,
+    :OLD.salary, :NEW.salary, SYSDATE);
+END;
+
+UPDATE employees
+SET salary = salary + 100
+WHERE employee_id = 100;
