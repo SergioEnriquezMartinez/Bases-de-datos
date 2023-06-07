@@ -481,3 +481,145 @@ END;
 UPDATE employees
 SET salary = salary + 100
 WHERE employee_id = 100;
+
+
+/*
+1. Crea una tabla llamada CAMBIOS con cuatro campos:
+NUMERO: entero clave primaria
+TIPO: cadena de hasta 80 caracteres
+USUARIO: cadena de hasta 20 caracteres
+MOMENTO: cadena de 14 caracteres (dia-mes-año hora:min)
+*/
+CREATE TABLE
+    cambios (
+        numero int primary key,
+        tipo varchar2(80),
+        usuario varchar2(20),
+        momento varchar2(14)
+    );
+
+
+/*
+2. Crea una secuencia llamada SAP que servirá para dar valores automáticamente al campo
+NUMERO y que avance de 1 en 1 
+*/
+CREATE SEQUENCE SAP START WITH 1 INCREMENT BY 1;
+
+/*
+3. Asocia a la tabla PRODUCTOS un trigger llamado AL_PRO que:
+a. Creará un nuevo registro en CAMBIOS cada vez que se introduce un nuevo registro en PRODUCTOS
+b. En el campo TIPO almacenará el texto “alta de productos”
+c. En el campo MOMENTO se almacenará la fecha y la hora
+*/
+CREATE OR REPLACE TRIGGER AL_PRO AFTER INSERT ON PRODUCTO 
+BEGIN 
+	INSERT INTO
+	    CAMBIOS(NUMERO, TIPO, USUARIO, MOMENTO)
+	VALUES (
+	        SAP.NEXTVAL,
+	        'ALTA DE PRODUCTO',
+	        USER,
+	        TO_CHAR(SYSDATE, 'DD-MM-YY HH24:MI')
+	    );
+END; 
+
+/*
+4. Asocia a la tabla CLIENTES un trigger llamado ABC que:
+a. Se ejecutará cada vez que se lleve a cabo una operación de inserción o borrado de registros en la misma
+b. Creará un nuevo registro en CAMBIOS almacenando en TIPO el texto ‘alta o baja de clientes’
+*/
+
+--Volvemos a crear el sap del ejercicio 2
+
+CREATE OR REPLACE TRIGGER abc
+AFTER INSERT OR DELETE ON cliente
+DECLARE
+    tip cambios.tipo%TYPE;
+BEGIN
+    IF INSERTING
+    THEN
+        tip := 'Alta cliente';
+    ELSIF DELETING
+    THEN
+        tip := 'Baja cliente';
+    END IF;
+
+    INSERT INTO cambios(numero, tipo, usuario, momento)
+    VALUES (sap.NEXTVAL, 'alta cliente', USER, TO_CHAR(SYSDATE, 'DD-MM-YY HH24:MI'));
+END; 
+
+
+/*
+5. Crea una tabla PEDIDOS con tres campos:
+CLIENTE: contiene la clave de un cliente
+PRODUCTO: contiene el código de un producto
+CANTIDAD: entero positivo 
+*/
+
+CREATE OR REPLACE TABLE pedidos(
+    cliente NUMBER(2) REFERENCES cliente(codigo_cliente),
+    producto VARCHAR2(15) REFERENCES producto(codigo_producto),
+    cantidad NUMBER(5) CHECK (cantidad > 0),
+    CONSTRAINT pedidos_pk PRIMARY KEY (cliente, producto, cantidad)
+);
+
+
+/*
+6. Asocia a la tabla PEDIDOS un trigger llamado AB_PED que:
+a. Creará un nuevo registro en CAMBIOS cada vez que se ejecute una orden que añadan o eliminen registros de de la tabla PEDIDOS
+b. En el campo TIPO se almacenará el texto ‘inserción de pedidos’, o ‘borrado de pedidos’ según corresponda 
+*/
+
+CREATE OR REPLACE TRIGGER AB_PED
+AFTER INSERT OR DELETE ON pedidos
+DECLARE
+    tip:= cambios.tipo%TYPE;
+BEGIN
+    IF INSERTING THEN
+        tip:='Insercción de pedidos';
+    ELSIF DELETING THEN
+        tip:='Borrado de pedidos';
+    END IF;
+
+    INSERT INTO cambios(numero, tipo, usuario, momento)
+    VALUES (sap.NEXTVAL, tip, USER, TO_CHAR('DD-MM-YY HH24:MI'));
+END;
+
+--Inserción
+INSERT INTO pedidos
+VALUES (1, '11679', 50);
+--Borrado
+DELETE FROM pedidos
+WHERE cliente = 1;
+
+/*
+7. Asocia a la tabla PRODUCTOS un trigger llamado CAM_PRE que:
+a. Creará un nuevo registro en CAMBIOS cada vez que se ejecute una orden que modifique el valor de la columna PRECIO de PRODUCTOS
+b. Almacenará en TIPO el texto ‘cambio de precios’ 
+*/
+
+CREATE OR REPLACE TRIGGER cam_pre
+AFTER INSERT OR DELETE ON productos
+BEGIN
+    INSERT INTO cambios(numero, tipo, usuario, momento)
+    VALUES (sap.NEXTVAL, 'Cambio de precios', USER, TO_CHAR('DD-MM-YY HH24:MI'));
+END;
+
+UPDATE producto
+SET precio_venta = 20
+WHERE codigo_producto = '11679';
+
+/*
+8. Asocia a la tabla PEDIDOS un trigger llamado CAM_PED que:
+a. Creará un registro en CAMBIOS cada vez que se ejecute una orden que modifique el contenido del campo PRODUCTO o el campo CANTIDAD
+b. Almacenará en TIPO el texto ‘cambio de producto o cantidad’ 
+*/
+
+
+
+/*
+9. Asocia a la tabla PEDIDOS un trigger llamado FD_PED que:
+a. Creará un registro en CAMBIOS por cada uno de los registros que se eliminen en PEDIDOS
+b. Almacenará en TIPO el texto ‘Se ha borrado un pedido’ 
+*/
+
