@@ -615,7 +615,17 @@ a. Creará un registro en CAMBIOS cada vez que se ejecute una orden que modifiqu
 b. Almacenará en TIPO el texto ‘cambio de producto o cantidad’ 
 */
 
+CREATE OR REPLACE TRIGGER CAM_PED
+AFTER UPDATE OF PRODUCTO, CANTIDAD ON PEDIDOS
+DECLARE
+BEGIN 
+	INSERT INTO CAMBIOS(NUMERO, TIPO, USUARIO, MOMENTO)
+	VALUES (SAP.NEXTVAL, 'CAMBIO_PRODUCTO', USER, TO_CHAR(SYSDATE, 'DD-MM-YY HH24:MI'));
+END; 
 
+update pedidos set cantidad = 20 where cliente = 1;
+
+select * from cambios
 
 /*
 9. Asocia a la tabla PEDIDOS un trigger llamado FD_PED que:
@@ -623,3 +633,62 @@ a. Creará un registro en CAMBIOS por cada uno de los registros que se eliminen 
 b. Almacenará en TIPO el texto ‘Se ha borrado un pedido’ 
 */
 
+CREATE OR REPLACE TRIGGER FD_PED
+AFTER DELETE ON PEDIDOS FOR EACH ROW DECLARE BEGIN
+INSERT INTO CAMBIOS(NUMERO, TIPO, USUARIO, MOMENTO)
+VALUES (SAP.NEXTVAL, 'SE HA BORRADO UN PEDIDO', USER, TO_CHAR(SYSDATE, 'DD-MM-YY HH24:MI'));
+END;
+
+/*
+10. Asocia a la tabla PRODUCTO un trigger FU_PRO que:
+a. Creará un nuevo registro en CAMBIOS cada vez que se cambie el precio_venta en un registro de PRODUCTO
+b. Almacenará en TIPO el texto ‘El precio de nombre pasa de precio_i a precio_f’
+*/
+
+CREATE OR REPLACE TRIGGER fu_pro
+AFTER UPDATE OF precio_venta ON producto
+FOR EACH ROW WHEN(OLD.precio_venta != NEW.precio_venta)
+
+DECLARE
+    tip cambios.tipo%TYPE;
+BEGIN
+    tip := 'el precio de ' || :OLD.nombre || ' pasa de ' || :OLD.precio_venta || ' a ' || :NEW.precio_venta;
+    INSERT INTO CAMBIOS(NUMERO, TIPO, USUARIO, MOMENTO)
+	VALUES (SAP.NEXTVAL, tip, USER, TO_CHAR(SYSDATE, 'DD-MM-YY HH24:MI'));
+END;
+
+
+/*
+11. Asocia a la tabla CLIENTE un trigger llamado FD_CLI que:
+a. Creará un nuevo registro en CAMBIOS cada vez que se borre un cliente
+b. Almacenará en TIPO el texto ‘Borrado el cliente CODIGO CLIENTE llamado NOMBRE CLIENTE’ 
+*/
+
+CREATE OR REPLACE TRIGGER fd_cli
+AFTER DELETE ON cliente
+FOR EACH ROW
+DECLARE
+    tip cambios.tipo%TYPE;
+BEGIN
+    tip := 'Borrado el cliente: ' || :OLD.codigo_cliente || ' llamado ' || :OLD.nombre_cliente;
+    INSERT INTO cambios(numero, tipo, usuario, momento)
+    VALUES (sap.NEXTVAL, tip, USER, TO_CHAR(SYSDATE, 'DD-MM-YY 24HH:MI'));
+END;
+
+/*
+12. Asocia a la tabla PRODUCTO un trigger FI_PRO que:
+a. Si se intenta dar de alta un producto con un precio superior a 100 le asigne un precio de 50 
+*/
+
+CREATE OR REPLACE TRIGGER fd_pro
+AFTER INSERT ON productos
+FOR EACH ROW WHEN NEW.precio_producto > 100
+DECLARE
+    tip := 'Error en la inserción'
+BEGIN
+    UPDATE producto
+    SET precio_venta = 50
+    WHERE :OLD.precio_venta > 100;
+END;
+
+INSERT INTO productos VALUES(6, 'plato', '10CM', 'Leroy', 100, 120, 99);
