@@ -507,9 +507,9 @@ CREATE SEQUENCE SAP START WITH 1 INCREMENT BY 1;
 
 /*
 3. Asocia a la tabla PRODUCTOS un trigger llamado AL_PRO que:
-a. Creará un nuevo registro en CAMBIOS cada vez que se introduce un nuevo registro en PRODUCTOS
-b. En el campo TIPO almacenará el texto “alta de productos”
-c. En el campo MOMENTO se almacenará la fecha y la hora
+    a. Creará un nuevo registro en CAMBIOS cada vez que se introduce un nuevo registro en PRODUCTOS
+    b. En el campo TIPO almacenará el texto “alta de productos”
+    c. En el campo MOMENTO se almacenará la fecha y la hora
 */
 CREATE OR REPLACE TRIGGER AL_PRO AFTER INSERT ON PRODUCTO 
 BEGIN 
@@ -525,8 +525,8 @@ END;
 
 /*
 4. Asocia a la tabla CLIENTES un trigger llamado ABC que:
-a. Se ejecutará cada vez que se lleve a cabo una operación de inserción o borrado de registros en la misma
-b. Creará un nuevo registro en CAMBIOS almacenando en TIPO el texto ‘alta o baja de clientes’
+    a. Se ejecutará cada vez que se lleve a cabo una operación de inserción o borrado de registros en la misma
+    b. Creará un nuevo registro en CAMBIOS almacenando en TIPO el texto ‘alta o baja de clientes’
 */
 
 --Volvemos a crear el sap del ejercicio 2
@@ -566,8 +566,8 @@ CREATE OR REPLACE TABLE pedidos(
 
 /*
 6. Asocia a la tabla PEDIDOS un trigger llamado AB_PED que:
-a. Creará un nuevo registro en CAMBIOS cada vez que se ejecute una orden que añadan o eliminen registros de de la tabla PEDIDOS
-b. En el campo TIPO se almacenará el texto ‘inserción de pedidos’, o ‘borrado de pedidos’ según corresponda 
+    a. Creará un nuevo registro en CAMBIOS cada vez que se ejecute una orden que añadan o eliminen registros de de la tabla PEDIDOS
+    b. En el campo TIPO se almacenará el texto ‘inserción de pedidos’, o ‘borrado de pedidos’ según corresponda 
 */
 
 CREATE OR REPLACE TRIGGER AB_PED
@@ -594,8 +594,8 @@ WHERE cliente = 1;
 
 /*
 7. Asocia a la tabla PRODUCTOS un trigger llamado CAM_PRE que:
-a. Creará un nuevo registro en CAMBIOS cada vez que se ejecute una orden que modifique el valor de la columna PRECIO de PRODUCTOS
-b. Almacenará en TIPO el texto ‘cambio de precios’ 
+    a. Creará un nuevo registro en CAMBIOS cada vez que se ejecute una orden que modifique el valor de la columna PRECIO de PRODUCTOS
+    b. Almacenará en TIPO el texto ‘cambio de precios’ 
 */
 
 CREATE OR REPLACE TRIGGER cam_pre
@@ -611,8 +611,8 @@ WHERE codigo_producto = '11679';
 
 /*
 8. Asocia a la tabla PEDIDOS un trigger llamado CAM_PED que:
-a. Creará un registro en CAMBIOS cada vez que se ejecute una orden que modifique el contenido del campo PRODUCTO o el campo CANTIDAD
-b. Almacenará en TIPO el texto ‘cambio de producto o cantidad’ 
+    a. Creará un registro en CAMBIOS cada vez que se ejecute una orden que modifique el contenido del campo PRODUCTO o el campo CANTIDAD
+    b. Almacenará en TIPO el texto ‘cambio de producto o cantidad’ 
 */
 
 CREATE OR REPLACE TRIGGER CAM_PED
@@ -629,8 +629,8 @@ select * from cambios
 
 /*
 9. Asocia a la tabla PEDIDOS un trigger llamado FD_PED que:
-a. Creará un registro en CAMBIOS por cada uno de los registros que se eliminen en PEDIDOS
-b. Almacenará en TIPO el texto ‘Se ha borrado un pedido’ 
+    a. Creará un registro en CAMBIOS por cada uno de los registros que se eliminen en PEDIDOS
+    b. Almacenará en TIPO el texto ‘Se ha borrado un pedido’ 
 */
 
 CREATE OR REPLACE TRIGGER FD_PED
@@ -641,8 +641,8 @@ END;
 
 /*
 10. Asocia a la tabla PRODUCTO un trigger FU_PRO que:
-a. Creará un nuevo registro en CAMBIOS cada vez que se cambie el precio_venta en un registro de PRODUCTO
-b. Almacenará en TIPO el texto ‘El precio de nombre pasa de precio_i a precio_f’
+    a. Creará un nuevo registro en CAMBIOS cada vez que se cambie el precio_venta en un registro de PRODUCTO
+    b. Almacenará en TIPO el texto ‘El precio de nombre pasa de precio_i a precio_f’
 */
 
 CREATE OR REPLACE TRIGGER fu_pro
@@ -660,8 +660,8 @@ END;
 
 /*
 11. Asocia a la tabla CLIENTE un trigger llamado FD_CLI que:
-a. Creará un nuevo registro en CAMBIOS cada vez que se borre un cliente
-b. Almacenará en TIPO el texto ‘Borrado el cliente CODIGO CLIENTE llamado NOMBRE CLIENTE’ 
+    a. Creará un nuevo registro en CAMBIOS cada vez que se borre un cliente
+    b. Almacenará en TIPO el texto ‘Borrado el cliente CODIGO CLIENTE llamado NOMBRE CLIENTE’ 
 */
 
 CREATE OR REPLACE TRIGGER fd_cli
@@ -677,7 +677,7 @@ END;
 
 /*
 12. Asocia a la tabla PRODUCTO un trigger FI_PRO que:
-a. Si se intenta dar de alta un producto con un precio superior a 100 le asigne un precio de 50 
+    a. Si se intenta dar de alta un producto con un precio superior a 100 le asigne un precio de 50 
 */
 
 CREATE OR REPLACE TRIGGER fd_pro
@@ -692,3 +692,63 @@ BEGIN
 END;
 
 INSERT INTO productos VALUES(6, 'plato', '10CM', 'Leroy', 100, 120, 99);
+
+
+CREATE OR REPLACE TRIGGER fd_pro
+BEFORE INSERT ON producto
+FOR EACH ROW
+BEGIN
+    IF :NEW.precio_venta > 100 THEN
+        :NEW.precio_venta := 50;
+    END IF;
+END;
+
+INSERT INTO producto VALUES(11, 'plato', '10CM', 'Leroy', 100, 120, 99);
+
+
+/*
+13. Asocia a la tabla PRODUCTO un trigger FD_PRO que:
+    a. Creará un nuevo registro en CAMBIOS si se borra un producto con un precio superior a 40
+    b. Almacenará en TIPO el texto ‘Borrado producto caro’ 
+*/
+
+CREATE OR REPLACE TRIGGER FD_PRO
+AFTER DELETE ON productos
+FOR EACH ROW WHEN (OLD.precio >  40)
+BEGIN
+    INSERT INTO cambios(numero, tipo, usuario, momento)
+    VALUES (sap.NEXTVAL, 'Borrado producto caro', USER, TO_CHAR(SYSDATE, 'DD-MM-YY 24HH:MI'));
+END;
+
+
+/*
+14. Crea una vista NINSO que muestre, por cada pago el identificador, el código y nombre del socio, el código, el nombre y la fecha del evento 
+*/
+
+CREATE OR REPLACE VIEW ninso AS
+SELECT pagos.id_pago, socio.id_socio, socio.nombre_socio, eventos.nombre_evento, eventos.fecha_evento
+FROM socio JOIN pagos USING (id_evento)
+JOIN socios USING (id_socio);
+
+
+/*
+15. Crea un trigger INSO asociado a NINSO que al ejecutar un INSERT:
+    si el socio no existe:
+        o da de alta al nuevo socio y el evento
+    si el socio existe:
+        o si el nombre coincide, dará de alta el evento
+        o si el nombre no coincide generará un error con el texto ‘NOMBRE DE SOCIO INCORRECTO’ 
+*/
+
+CREATE OR REPLACE TRIGGER inso
+INSTEAD OF INSERT ON ninso
+DECLARE
+    contador NUMBER;
+    nomSOcio socios.nombre_socio%TYPE;
+BEGIN
+    SELECT COUNT(nombre_socio) INTO contador FROM socios
+    WHERE id_socio = :NEW.id_socio;
+    --si el socio no existe
+    IF contador _0 THEN
+    
+END;
